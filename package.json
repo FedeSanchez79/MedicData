@@ -1,0 +1,39 @@
+{
+  "name": "medicdata",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "scripts/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node scripts/index.js",
+    "dev": "nodemon scripts/index.js",
+    "sass": "sass --watch css/style.scss:css/style.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FedeSanchez79/MedicData.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FedeSanchez79/MedicData/issues"
+  },
+  "homepage": "https://github.com/FedeSanchez79/MedicData#readme",
+  "dependencies": {
+    "axios": "^1.11.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^7.0.5",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "sass": "^1.90.0"
+  }
+}
