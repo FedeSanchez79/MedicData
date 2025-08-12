@@ -147,44 +147,26 @@ loginForm.addEventListener('submit', async (e) => {
     showMessage('Login exitoso!', false);
     loginForm.reset();
 
-    // Guardar token
-    localStorage.setItem('token', data.token);
+    // Guardar token y datos decodificados en sessionStorage
+    const payload = JSON.parse(atob(data.token.split('.')[1]));
+    const pacienteId = payload.id || payload.userId || null; // según backend
+    const role = payload.role;
+    const usernameToken = payload.username;
 
-    // Mostrar panel (puedes llamar función para cargar datos)
-    showUserPanel(data.token);
+    sessionStorage.setItem('token', data.token);
+    sessionStorage.setItem('pacienteId', pacienteId);
+    sessionStorage.setItem('pacienteNombre', usernameToken);
+    sessionStorage.setItem('role', role);
+
+    // Redirigir o cargar panel paciente
+    if (role === 'patient') {
+      window.location.href = '/pages/paciente.html';
+    } else {
+      window.location.href = '/'; 
+    }
+
 
   } catch (error) {
     showMessage('Error conectando con el servidor.');
   }
 });
-
-// Mostrar panel simple según rol (ejemplo)
-async function showUserPanel(token) {
-  // Decodificar token para obtener rol y username
-  const payload = JSON.parse(atob(token.split('.')[1]));
-  const role = payload.role;
-  const username = payload.username;
-
-  messageDiv.textContent = `Bienvenido ${username} (${role})`;
-
-  if (role === 'patient') {
-    try {
-      const res = await fetch('http://localhost:3000/patient-data', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        showMessage(data.message || 'Error al obtener datos médicos.');
-        return;
-      }
-
-      alert(`Tus datos médicos: ${data.data || 'No hay datos.'}`);
-
-    } catch {
-      showMessage('Error conectando con el servidor.');
-    }
-  }
-
-  // Para profesionales, podés hacer algo similar
-}

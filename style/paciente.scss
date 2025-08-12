@@ -1,0 +1,97 @@
+@use "sass:color";
+
+// Variables (colores, fuentes)
+$primary-color: #007bff;
+$secondary-color: #6c757d;
+$success-color: #28a745;
+$error-color: #dc3545;
+$font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+.hidden {
+  display: none !important;
+}
+
+body {
+  font-family: $font-family;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+.header {
+  background-color: $primary-color;
+  padding: 1rem 2rem;
+  text-align: center;
+  color: white;
+
+  &__title {
+    margin: 0;
+    font-size: 1.8rem;
+  }
+}
+
+.main-content {
+  max-width: 480px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+// Botones base para mobile (mobile first)
+.btn {
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &--primary {
+    background-color: $primary-color;
+    color: white;
+
+    &:hover {
+      background-color: color.adjust($primary-color, $lightness: -10%);
+    }
+  }
+
+  &--secondary {
+    background-color: $secondary-color;
+    color: white;
+
+    &:hover {
+      background-color: color.adjust($secondary-color, $lightness: -10%);
+    }
+  }
+}
+
+// Ajustes para pantallas más grandes
+@media (min-width: 768px) {
+  .btn {
+    font-size: 1.1rem;
+    padding: 1rem 2rem;
+  }
+}
+
+.qr-container {
+  padding: 1rem;
+  border: 2px solid $primary-color;
+  border-radius: 8px;
+  background-color: #e9f0ff;
+
+  &__canvas {
+    display: block;
+    margin: 0 auto;
+  }
+}

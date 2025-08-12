@@ -11,7 +11,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'secret_key';
 
-app.use(cors());
+app.use(cors({
+  origin: '*', // Permitir cualquier origen
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false // usualmente false si no usás cookies
+}));
+
 app.use(express.json());
 
 let db;
@@ -66,11 +72,17 @@ app.post('/login', async (req, res) => {
     if (!valid) return res.status(401).json({ message: 'Contraseña incorrecta' });
 
     const token = jwt.sign(
-      { username: user.username, role: user.role },
+      { username: user.username, role: user.role, id: user.id }, // ahora incluimos id
       JWT_SECRET,
       { expiresIn: '1h' }
     );
-    res.json({ token });
+
+    res.json({
+      token,
+      id: user.id,
+      username: user.username,
+      role: user.role
+    });
   } catch {
     res.status(500).json({ message: 'Error en el servidor' });
   }
