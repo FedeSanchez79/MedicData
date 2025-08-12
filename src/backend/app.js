@@ -7,6 +7,7 @@ import { openDb, initDb } from './database.js';
 
 dotenv.config();
 
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'secret_key';
@@ -78,61 +79,30 @@ app.post('/login', async (req, res) => {
     }
 
     const validPassword = await bcrypt.compare(password, user.password);
-
     if (!validPassword) {
       return res.status(401).json({ message: 'Contraseña incorrecta' });
     }
 
-    const token = jwt.sign(
-      { id: user.id, username: user.username, role: user.role },
-      JWT_SECRET,
-      { expiresIn: '1h' }
-    );
+    // 🔹 Incluir nombre y apellido en el token
+const token = jwt.sign(
+  { id: user.id, role: user.role, username: user.username, firstName: user.firstName, lastName: user.lastName },
+  process.env.JWT_SECRET,
+  { expiresIn: '1h' }
+);
 
+    // 🔹 Enviar también los datos para guardarlos en sessionStorage
     res.json({
       token,
       id: user.id,
       username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
       role: user.role
     });
   } catch (error) {
-    console.error('Error en /login:', error);  // <-- Agrega esta línea
+    console.error('Error en /login:', error);
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
 
-
-// Login de usuario
-app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-
-  try {
-    const user = await db.get('SELECT * FROM users WHERE username = ?', username);
-
-    if (!user) {
-      return res.status(400).json({ message: 'Usuario no encontrado' });
-    }
-
-    const validPassword = await bcrypt.compare(password, user.password);
-
-    if (!validPassword) {
-      return res.status(401).json({ message: 'Contraseña incorrecta' });
-    }
-
-    const token = jwt.sign(
-      { id: user.id, username: user.username, role: user.role },
-      JWT_SECRET,
-      { expiresIn: '1h' }
-    );
-
-    res.json({
-      token,
-      id: user.id,
-      username: user.username,
-      role: user.role
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Error interno del servidor' });
-  }
-});
 

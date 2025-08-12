@@ -156,6 +156,7 @@ loginForm.addEventListener('submit', async (e) => {
 
     // Guardar token y datos decodificados en sessionStorage
     const payload = JSON.parse(atob(data.token.split('.')[1]));
+    sessionStorage.setItem('pacienteNombre', `${payload.firstName} ${payload.lastName}`);
     const pacienteId = payload.id || payload.userId || null;
     const role = payload.role;
     const usernameToken = payload.username;
