@@ -15,10 +15,13 @@ body {
 }
 
 .header {
-  background-color: variables.$primary-color;
-  padding: 1rem 2rem;
-  text-align: center;
+  background-color: #007bff;
+  padding: 1rem 1.5rem;
+  border-radius: 12px 12px 0 0; /* bordes redondeados arriba */
   color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
   &__title {
     margin: 0;
@@ -58,6 +61,15 @@ body {
     @include mixins.button-hover(variables.$secondary-color);
   }
 }
+
+.btn--danger {
+  background-color: #dc3545;
+  color: white;
+}
+.btn--danger:hover {
+  background-color: #b52a37;
+}
+
 
 // Ajustes para pantallas mayores
 @media (min-width: 768px) {

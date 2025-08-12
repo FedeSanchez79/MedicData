@@ -7,7 +7,6 @@ import { openDb, initDb } from './database.js';
 
 dotenv.config();
 
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'secret_key';
@@ -15,11 +14,10 @@ const JWT_SECRET = process.env.JWT_SECRET || 'secret_key';
 app.use(cors());
 app.use(express.json());
 
-// Servir archivos estáticos
+// Servir archivos estáticos desde la carpeta 'public'
 app.use(express.static('public'));
 
-let db;
-
+// Middleware para validar token JWT
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -32,12 +30,18 @@ function authenticateToken(req, res, next) {
   });
 }
 
-initDb().then(database => {
-  db = database;
-  app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+let db;
+
+initDb()
+  .then(database => {
+    db = database;
+    app.listen(PORT, () => {
+      console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('Error inicializando la base de datos:', err);
   });
-});
 
 // Registro de usuario
 app.post('/register', async (req, res) => {
@@ -58,7 +62,7 @@ app.post('/register', async (req, res) => {
 
     res.status(201).json({ message: 'Usuario registrado correctamente' });
   } catch (error) {
-    console.error('Error en /register:', error);  // <-- Agrega esta línea
+    console.error('Error en /register:', error);
     if (error.message.includes('UNIQUE constraint failed')) {
       res.status(409).json({ message: 'El usuario o email ya existe' });
     } else {
@@ -83,14 +87,18 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Contraseña incorrecta' });
     }
 
-    // 🔹 Incluir nombre y apellido en el token
-const token = jwt.sign(
-  { id: user.id, role: user.role, username: user.username, firstName: user.firstName, lastName: user.lastName },
-  process.env.JWT_SECRET,
-  { expiresIn: '1h' }
-);
+    const token = jwt.sign(
+      {
+        id: user.id,
+        role: user.role,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName
+      },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
-    // 🔹 Enviar también los datos para guardarlos en sessionStorage
     res.json({
       token,
       id: user.id,
@@ -104,5 +112,3 @@ const token = jwt.sign(
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
-
-

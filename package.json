@@ -4,11 +4,12 @@
   "type": "module",
   "description": "",
   "main": "src/backend/app.js",
-  "scripts": {
-    "start": "node src/backend/app.js",
-    "dev": "nodemon src/backend/app.js",
-    "sass": "sass --watch src/sass/style.scss:public/css/style.css"
-  },
+"scripts": {
+  "start": "node src/backend/app.js",
+  "dev": "concurrently \"nodemon src/backend/app.js\" \"sass --watch src/sass/style.scss:public/css/style.css\"",
+  "sass": "sass --watch src/sass/style.scss:public/css/style.css"
+}
+,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/FedeSanchez79/MedicData.git"
