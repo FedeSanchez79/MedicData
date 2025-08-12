@@ -1,3 +1,10 @@
+// Definir base URL del backend (vacío para mismo origen en producción)
+// Detectar entorno para API_BASE_URL
+const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+  ? 'http://localhost:3000' 
+  : '';
+
+
 // Referencias DOM
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
@@ -89,7 +96,7 @@ registerForm.addEventListener('submit', async (e) => {
   }
 
   try {
-    const res = await fetch('http://localhost:3000/register', {
+    const res = await fetch(`${API_BASE_URL}/register`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -132,7 +139,7 @@ loginForm.addEventListener('submit', async (e) => {
   }
 
   try {
-    const res = await fetch('http://localhost:3000/login', {
+    const res = await fetch(`${API_BASE_URL}/login`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ username, password })
@@ -149,7 +156,7 @@ loginForm.addEventListener('submit', async (e) => {
 
     // Guardar token y datos decodificados en sessionStorage
     const payload = JSON.parse(atob(data.token.split('.')[1]));
-    const pacienteId = payload.id || payload.userId || null; // según backend
+    const pacienteId = payload.id || payload.userId || null;
     const role = payload.role;
     const usernameToken = payload.username;
 
@@ -160,11 +167,10 @@ loginForm.addEventListener('submit', async (e) => {
 
     // Redirigir o cargar panel paciente
     if (role === 'patient') {
-      window.location.href = '/pages/paciente.html';
+      window.location.href = 'pages/paciente.html';  // Ruta corregida
     } else {
-      window.location.href = '/'; 
+      window.location.href = '/';
     }
-
 
   } catch (error) {
     showMessage('Error conectando con el servidor.');

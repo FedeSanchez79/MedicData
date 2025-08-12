@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "type": "module",
   "description": "",
-  "main": "scripts/index.js",
+  "main": "src/backend/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node scripts/index.js",
-    "dev": "nodemon scripts/index.js",
-    "sass": "sass --watch css/style.scss:css/style.css"
+    "start": "node src/backend/app.js",
+    "dev": "nodemon src/backend/app.js",
+    "sass": "sass --watch src/sass/style.scss:public/css/style.css"
   },
   "repository": {
     "type": "git",

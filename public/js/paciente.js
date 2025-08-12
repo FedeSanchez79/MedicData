@@ -3,9 +3,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const pacienteId = sessionStorage.getItem("pacienteId");
   const pacienteNombre = sessionStorage.getItem("pacienteNombre");
   const role = sessionStorage.getItem("role");
+  const backendUrl = window.BACKEND_URL || "http://localhost:3000";
 
   if (!token || role !== "patient") {
-    window.location.href = '../index.html'; // redirige al login en la raíz
+    window.location.href = `${backendUrl}/public/index.html`; // redirige al login en la raíz
     return;
   }
 
@@ -18,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Botón Generar QR
   document.getElementById("btn-generar-qr").addEventListener("click", () => {
-    const enlace = `${window.location.origin}/historial/paciente/${pacienteId}`;
+    const enlace = `${backendUrl}/historial/paciente/${pacienteId}`;
     QRCode.toCanvas(document.getElementById("qr-code"), enlace, { width: 200 }, (error) => {
       if (error) console.error(error);
     });
@@ -27,12 +28,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Botón Ver Historial Médico
   document.getElementById("btn-ver-historial").addEventListener("click", () => {
-    window.location.href = `/historial/paciente/${pacienteId}`;
+    window.location.href = `${backendUrl}/historial/paciente/${pacienteId}`;
   });
 
   // Botón Logout - limpiar sesión y redirigir
   document.getElementById('logout-btn').addEventListener('click', () => {
     sessionStorage.clear(); // limpia todos los datos de sessionStorage
-    window.location.href = '../index.html'; // vuelve al login en raíz
+    window.location.href = `${backendUrl}/public/index.html`; // vuelve al login en raíz
   });
 });

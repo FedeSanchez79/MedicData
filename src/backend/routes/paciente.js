@@ -1,6 +1,6 @@
 import express from 'express';
 import { authenticateToken } from './middlewares/authMiddleware.js'; // tu middleware JWT
-import { openDb } from './database.js';
+import { openDb } from '../database.js';
 
 const app = express();
 let db;

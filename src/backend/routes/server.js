@@ -1,6 +1,6 @@
 import express from "express";
 import path from "path";
-import pacienteRoutes from "./routes/paciente.js";
+import pacienteRoutes from ".paciente.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;

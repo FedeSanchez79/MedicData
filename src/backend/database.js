@@ -1,9 +1,17 @@
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Para obtener la ruta absoluta del directorio actual
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export async function openDb() {
+  // Ruta absoluta hacia la base de datos
+  const dbPath = path.resolve(__dirname, '../../database/medicdata.db');
   return open({
-    filename: './medicdata.db',
+    filename: dbPath,
     driver: sqlite3.Database
   });
 }
