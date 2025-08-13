@@ -1,0 +1,197 @@
+@use "sass:color";
+@use "variables";
+@use "mixins";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: variables.$font-family;
+  background-color: variables.$secondary-color;
+  color: variables.$text-color;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+.container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem;
+}
+
+h1 {
+  text-align: center;
+  color: variables.$primary-color;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  
+  label {
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  input, select, textarea {
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border: 1.5px solid color.adjust(variables.$primary-color, $lightness: 40%);
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+
+    &:focus {
+      border-color: variables.$primary-color;
+      outline: none;
+      box-shadow: 0 0 6px color.adjust(variables.$primary-color, $lightness: -20%);
+    }
+  }
+
+  button {
+    background-color: variables.$primary-color;
+    color: white;
+    border: none;
+    border-radius: 2px;
+    padding: 0.85rem 1rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: color.adjust(variables.$primary-color, $lightness: -10%);
+    }
+  }
+
+  p {
+    font-size: 0.9rem;
+    text-align: center;
+    padding-top: 5px;
+
+    button {
+      background: none;
+      border: none;
+      color: variables.$primary-color;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 2px 4px;
+      margin-left: 0.25rem;
+      text-decoration: underline;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+
+      &:hover {
+        background-color: color.adjust(variables.$primary-color, $lightness: -10%);
+        color: #f8f9fa;
+        padding: 2px 4px;
+        transform: scale(1.05);
+      }
+    }
+  }
+}
+
+#message {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  min-height: 1.2rem;
+  color: variables.$danger-color;
+}
+
+#panel {
+  margin-top: 1rem;
+
+  h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    color: variables.$primary-color;
+  }
+
+  #patientPanel, #professionalPanel {
+    background-color: color.adjust(variables.$primary-color, $lightness: 45%);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    color: variables.$text-color;
+  }
+
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: monospace;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  button#logoutBtn {
+    background-color: variables.$danger-color;
+    margin-top: 0.5rem;
+
+    &:hover {
+      background-color: color.adjust(variables.$danger-color, $lightness: -10%);
+    }
+  }
+}
+
+form {
+  opacity: 1;
+  visibility: visible;
+  max-height: 1000px; // alto suficientemente grande para el formulario
+  overflow: hidden;
+  transition: opacity 0.4s ease, max-height 0.5s ease, visibility 0.4s ease;
+}
+
+.hidden {
+  display: none !important;
+  opacity: 0;
+  visibility: hidden;
+  max-height: 0;
+  pointer-events: none;
+}
+
+// Transición general para formularios (visibilidad + opacidad + desplazamiento)
+form {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+form.hidden {
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none; // para que no se pueda clickear cuando está oculto
+  position: absolute; // para que no ocupe espacio
+  left: 0;
+  right: 0;
+}
+
+// Botones con transición suave y efecto hover
+button {
+  transition: background-color 0.3s ease, transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.titulo{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

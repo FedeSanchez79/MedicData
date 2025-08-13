@@ -17,7 +17,7 @@ body {
 .header {
   background-color: #007bff;
   padding: 1rem 1.5rem;
-  border-radius: 12px 12px 0 0; /* bordes redondeados arriba */
+  border-radius: 12px 12px 0 0;
   color: white;
   display: flex;
   justify-content: space-between;
@@ -33,7 +33,7 @@ body {
   max-width: 480px;
   margin: 2rem auto;
   padding: 1rem;
-  background: white;
+  background: rgb(255, 0, 0);
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   display: flex;
@@ -63,13 +63,13 @@ body {
 }
 
 .btn--danger {
-  background-color: #dc3545;
+  background-color: variables.$danger-color;
   color: white;
 }
-.btn--danger:hover {
-  background-color: #b52a37;
-}
 
+.btn--danger:hover {
+  background-color: color.adjust(variables.$danger-color, $lightness: -10%);
+}
 
 // Ajustes para pantallas mayores
 @media (min-width: 768px) {
