@@ -1,39 +1,48 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const token = sessionStorage.getItem("token");
-  const pacienteId = sessionStorage.getItem("pacienteId");
-  const pacienteNombre = sessionStorage.getItem("pacienteNombre");
-  const role = sessionStorage.getItem("role");
-  const backendUrl = window.BACKEND_URL || "http://localhost:3000";
+import express from 'express';
+import { openDb } from '../database.js';
 
-  if (!token || role !== "patient") {
-    window.location.href = `${backendUrl}/public/index.html`; // redirige al login en la raíz
-    return;
+const router = express.Router();
+
+// GET /historial/paciente/:id
+// Acceso: paciente (solo el propio) o profesional (cualquiera)
+router.get('/:id', async (req, res) => {
+  // req.user viene del middleware authenticateToken aplicado en app.js
+  const { role, id: userId } = req.user;
+
+  if (role !== 'patient' && role !== 'professional') {
+    return res.status(403).json({ message: 'Acceso denegado' });
   }
 
-  // Mostrar nombre del paciente
-  document.getElementById("nombre-paciente").textContent = `Bienvenido, ${pacienteNombre}`;
+  if (role === 'patient' && userId !== parseInt(req.params.id)) {
+    return res.status(403).json({ message: 'Solo podés ver tu propio historial' });
+  }
 
-  // Limpiar contenedor QR
-  const qrContainer = document.getElementById("qr-container");
-  qrContainer.innerHTML = "";
+  try {
+    const db = await openDb();
 
-  // Botón Generar QR
-  document.getElementById("btn-generar-qr").addEventListener("click", () => {
-    const enlace = `${backendUrl}/historial/paciente/${pacienteId}`;
-    QRCode.toCanvas(document.getElementById("qr-code"), enlace, { width: 200 }, (error) => {
-      if (error) console.error(error);
+    const paciente = await db.get(
+      `SELECT id, firstName, lastName, email, phone FROM users WHERE id = ? AND role = 'patient'`,
+      req.params.id
+    );
+
+    if (!paciente) {
+      return res.status(404).json({ message: 'Paciente no encontrado' });
+    }
+
+    const historial = await db.all(
+      `SELECT * FROM medical_records WHERE patient_id = ? ORDER BY created_at DESC`,
+      req.params.id
+    );
+
+    res.json({
+      paciente,
+      historial
     });
-    qrContainer.classList.remove("hidden");
-  });
 
-  // Botón Ver Historial Médico
-  document.getElementById("btn-ver-historial").addEventListener("click", () => {
-    window.location.href = `${backendUrl}/historial/paciente/${pacienteId}`;
-  });
-
-  // Botón Logout - limpiar sesión y redirigir
-  document.getElementById('logout-btn').addEventListener('click', () => {
-    sessionStorage.clear(); // limpia todos los datos de sessionStorage
-    window.location.href = `${backendUrl}/public/index.html`; // vuelve al login en raíz
-  });
+  } catch (err) {
+    console.error('Error en GET /historial/paciente/:id :', err);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
 });
+
+export default router;

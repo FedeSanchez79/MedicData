@@ -1,147 +1,138 @@
-// Definir base URL del backend (vacío para mismo origen en producción)
-// Detectar entorno para API_BASE_URL
-const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
-  ? 'http://localhost:3000' 
+const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:3000'
   : '';
 
+// ─── Referencias DOM ──────────────────────────────────────────────────────────
+const loginForm       = document.getElementById('loginForm');
+const registerForm    = document.getElementById('registerForm');
+const loginSection    = document.getElementById('loginSection');
+const registerSection = document.getElementById('registerSection');
+const messageDiv      = document.getElementById('message');
+const messageRegDiv   = document.getElementById('messageReg');
 
-// Referencias DOM
-const loginForm = document.getElementById('loginForm');
-const registerForm = document.getElementById('registerForm');
-const showRegisterBtnInline = document.getElementById('showRegisterBtnInline');
-const showLoginBtn = document.getElementById('showLoginBtn');
-const messageDiv = document.getElementById('message');
-
-// Expresiones regulares para validación
-const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-const phoneRegex = /^\d+$/;
-const usernameRegex = /^[A-Za-z0-9]+$/;
-const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};:'",.<>\/?\\|`~]).{8,16}$/;
-
-// Función para mostrar mensaje
-function showMessage(msg, isError = true) {
-  messageDiv.textContent = msg;
-  messageDiv.style.color = isError ? '#dc3545' : '#28a745';
+// ─── Utilidades ───────────────────────────────────────────────────────────────
+function showMessage(msg, isError = true, registro = false) {
+  const div = registro ? messageRegDiv : messageDiv;
+  if (!div) return;
+  div.textContent = msg;
+  div.className = isError ? 'error' : 'exito';
 }
 
-// Mostrar formulario registro con animación
-function showRegister() {
-  registerForm.classList.remove('hidden');
-  loginForm.classList.add('hidden');
-  messageDiv.textContent = '';
+function limpiarMensajes() {
+  if (messageDiv)    { messageDiv.textContent = '';    messageDiv.className = ''; }
+  if (messageRegDiv) { messageRegDiv.textContent = ''; messageRegDiv.className = ''; }
 }
 
-// Mostrar formulario login con animación
-function showLogin() {
-  registerForm.classList.add('hidden');
-  loginForm.classList.remove('hidden');
-  messageDiv.textContent = '';
-}
+// ─── Alternar formularios ─────────────────────────────────────────────────────
+document.getElementById('showRegisterBtn')?.addEventListener('click', () => {
+  loginSection.classList.add('hidden');
+  registerSection.classList.remove('hidden');
+  limpiarMensajes();
+});
 
-// Event listeners para alternar formularios
-showRegisterBtnInline.addEventListener('click', showRegister);
-showLoginBtn.addEventListener('click', showLogin);
+document.getElementById('showLoginBtn')?.addEventListener('click', () => {
+  registerSection.classList.add('hidden');
+  loginSection.classList.remove('hidden');
+  limpiarMensajes();
+});
 
-// Registro
-registerForm.addEventListener('submit', async (e) => {
+// ─── Validaciones ─────────────────────────────────────────────────────────────
+const nameRegex     = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/;
+const phoneRegex    = /^\+?[\d\s\-]{6,20}$/;
+const usernameRegex = /^[A-Za-z0-9_]+$/;
+const emailRegex    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};:'",.<>/?\\|`~]).{8,16}$/;
+
+// ─── Registro ─────────────────────────────────────────────────────────────────
+registerForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
-  messageDiv.textContent = '';
+  limpiarMensajes();
 
-  const firstName = document.getElementById('firstNameReg').value.trim();
-  const lastName = document.getElementById('lastNameReg').value.trim();
-  const phone = document.getElementById('phoneReg').value.trim();
-  const email = document.getElementById('emailReg').value.trim();
-  const regUsername = document.getElementById('usernameReg').value.trim();
-  const regPassword = document.getElementById('passwordReg').value;
+  const firstName       = document.getElementById('firstNameReg').value.trim();
+  const lastName        = document.getElementById('lastNameReg').value.trim();
+  const phone           = document.getElementById('phoneReg').value.trim();
+  const email           = document.getElementById('emailReg').value.trim();
+  const username        = document.getElementById('usernameReg').value.trim();
+  const password        = document.getElementById('passwordReg').value;
   const confirmPassword = document.getElementById('confirmPasswordReg').value;
-  const regRole = document.getElementById('roleReg').value;
+  const role            = document.getElementById('roleReg').value;
 
-  if (!firstName || !lastName || !phone || !email || !regUsername || !regPassword || !confirmPassword || !regRole) {
-    showMessage('Por favor completa todos los campos.');
+  if (!firstName || !lastName || !phone || !email || !username || !password || !confirmPassword || !role) {
+    showMessage('Por favor completá todos los campos.', true, true);
     return;
   }
-
   if (!nameRegex.test(firstName)) {
-    showMessage('El nombre solo puede contener letras y espacios.');
+    showMessage('El nombre solo puede contener letras y espacios.', true, true);
     return;
   }
   if (!nameRegex.test(lastName)) {
-    showMessage('El apellido solo puede contener letras y espacios.');
+    showMessage('El apellido solo puede contener letras y espacios.', true, true);
     return;
   }
   if (!phoneRegex.test(phone)) {
-    showMessage('El teléfono solo puede contener números.');
+    showMessage('Teléfono inválido.', true, true);
     return;
   }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    showMessage('El correo electrónico no es válido.');
+    showMessage('El email no es válido.', true, true);
     return;
   }
-
-  if (!usernameRegex.test(regUsername)) {
-    showMessage('El usuario solo puede contener letras y números, sin espacios.');
+  if (!usernameRegex.test(username)) {
+    showMessage('El usuario solo puede tener letras, números y guión bajo.', true, true);
     return;
   }
-
-  if (!passwordRegex.test(regPassword)) {
-    showMessage('La contraseña debe tener 8-16 caracteres, al menos una mayúscula, un número y un símbolo.');
+  if (!passwordRegex.test(password)) {
+    showMessage('La contraseña debe tener 8-16 caracteres, una mayúscula, un número y un símbolo.', true, true);
     return;
   }
-
-  if (regPassword !== confirmPassword) {
-    showMessage('Las contraseñas no coinciden.');
+  if (password !== confirmPassword) {
+    showMessage('Las contraseñas no coinciden.', true, true);
     return;
   }
 
   try {
     const res = await fetch(`${API_BASE_URL}/register`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        firstName,
-        lastName,
-        phone,
-        email,
-        username: regUsername,
-        password: regPassword,
-        role: regRole
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ firstName, lastName, phone, email, username, password, role })
     });
     const data = await res.json();
 
     if (!res.ok) {
-      showMessage(data.message || 'Error en el registro.');
+      showMessage(data.message || 'Error en el registro.', true, true);
       return;
     }
 
-    showMessage('Registro exitoso! Ahora logueate.', false);
+    showMessage('¡Cuenta creada! Ahora iniciá sesión.', false, true);
     registerForm.reset();
-    showLogin();
+    setTimeout(() => {
+      registerSection.classList.add('hidden');
+      loginSection.classList.remove('hidden');
+      limpiarMensajes();
+    }, 1500);
 
   } catch (error) {
-    showMessage('Error conectando con el servidor.');
+    showMessage('Error conectando con el servidor.', true, true);
   }
 });
 
-// Login
-loginForm.addEventListener('submit', async (e) => {
+// ─── Login ────────────────────────────────────────────────────────────────────
+loginForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
-  messageDiv.textContent = '';
+  limpiarMensajes();
 
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
 
   if (!username || !password) {
-    showMessage('Por favor ingresa usuario y contraseña.');
+    showMessage('Ingresá usuario y contraseña.');
     return;
   }
 
   try {
     const res = await fetch(`${API_BASE_URL}/login`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     });
     const data = await res.json();
@@ -151,26 +142,21 @@ loginForm.addEventListener('submit', async (e) => {
       return;
     }
 
-    showMessage('Login exitoso!', false);
-    loginForm.reset();
-
-    // Guardar token y datos decodificados en sessionStorage
+    // Decodificar el token JWT
     const payload = JSON.parse(atob(data.token.split('.')[1]));
-    sessionStorage.setItem('pacienteNombre', `${payload.firstName} ${payload.lastName}`);
-    const pacienteId = payload.id || payload.userId || null;
-    const role = payload.role;
-    const usernameToken = payload.username;
 
-    sessionStorage.setItem('token', data.token);
-    sessionStorage.setItem('pacienteId', pacienteId);
-    sessionStorage.setItem('pacienteNombre', usernameToken);
-    sessionStorage.setItem('role', role);
+    // Guardar en sessionStorage
+    sessionStorage.setItem('token',    data.token);
+    sessionStorage.setItem('userId',   payload.id);
+    sessionStorage.setItem('role',     payload.role);
+    sessionStorage.setItem('username', payload.username);
+    sessionStorage.setItem('nombre',   `${payload.firstName} ${payload.lastName}`);
 
-    // Redirigir o cargar panel paciente
-    if (role === 'patient') {
-      window.location.href = 'pages/paciente.html';  // Ruta corregida
-    } else {
-      window.location.href = '/';
+    // Redirigir según rol
+    if (payload.role === 'patient') {
+      window.location.href = '/pages/paciente.html';
+    } else if (payload.role === 'professional') {
+      window.location.href = '/pages/profesional.html';
     }
 
   } catch (error) {

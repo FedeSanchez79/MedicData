@@ -2,29 +2,588 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panel Paciente - MedicData</title>
-  <link rel="stylesheet" href="/public/css/style.css"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Panel — Medic Data</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --azul:       #1A5CFF;
+      --azul-suave: #EEF3FF;
+      --azul-hover: #1449CC;
+      --texto:      #111827;
+      --gris:       #6B7280;
+      --gris-claro: #9CA3AF;
+      --borde:      #E5E7EB;
+      --fondo:      #F9FAFB;
+      --blanco:     #FFFFFF;
+      --error:      #DC2626;
+      --error-bg:   #FEF2F2;
+      --exito:      #16A34A;
+      --exito-bg:   #F0FDF4;
+      --warning:    #D97706;
+      --warning-bg: #FFFBEB;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--fondo);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      background: var(--blanco);
+      border-bottom: 1px solid var(--borde);
+      padding: 0 2rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.2rem;
+      color: var(--texto);
+      text-decoration: none;
+    }
+
+    .navbar-brand-dot {
+      width: 10px; height: 10px;
+      background: var(--azul);
+      border-radius: 50%;
+    }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .navbar-nombre {
+      font-size: 0.85rem;
+      color: var(--gris);
+    }
+
+    .navbar-nombre span {
+      color: var(--texto);
+      font-weight: 500;
+    }
+
+    .btn-logout {
+      font-size: 0.82rem;
+      padding: 6px 14px;
+      border: 1px solid var(--borde);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--gris);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      background: var(--error-bg);
+      color: var(--error);
+      border-color: #FCA5A5;
+    }
+
+    /* ── Layout principal ── */
+    .main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .bienvenida {
+      margin-bottom: 2rem;
+    }
+
+    .bienvenida h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.8rem;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.25rem;
+    }
+
+    .bienvenida p {
+      font-size: 0.88rem;
+      color: var(--gris);
+    }
+
+    /* ── Grid de paneles ── */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 640px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--blanco);
+      border: 1px solid var(--borde);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gris-claro);
+      margin-bottom: 1rem;
+    }
+
+    /* ── Card QR ── */
+    .qr-card { grid-column: 1; }
+
+    .btn-qr {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--azul);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-qr:hover { background: var(--azul-hover); }
+    .btn-qr:active { transform: scale(0.99); }
+    .btn-qr:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .qr-wrapper {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 1.2rem;
+      gap: 10px;
+    }
+
+    .qr-wrapper.visible { display: flex; }
+
+    .qr-wrapper canvas {
+      border-radius: 12px;
+      border: 1px solid var(--borde);
+      padding: 10px;
+      background: white;
+    }
+
+    .qr-expira {
+      font-size: 0.78rem;
+      color: var(--warning);
+      background: var(--warning-bg);
+      padding: 4px 12px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .qr-countdown {
+      font-size: 0.78rem;
+      color: var(--gris);
+      text-align: center;
+    }
+
+    /* ── Card datos personales ── */
+    .dato-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--fondo);
+      font-size: 0.85rem;
+    }
+
+    .dato-row:last-child { border-bottom: none; }
+    .dato-label { color: var(--gris); }
+    .dato-valor { font-weight: 500; text-align: right; }
+
+    /* ── Historial ── */
+    .historial-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .historial-header h2 {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .badge-count {
+      font-size: 0.75rem;
+      background: var(--azul-suave);
+      color: var(--azul);
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .historial-vacio {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--gris-claro);
+      font-size: 0.88rem;
+      background: var(--blanco);
+      border: 1px solid var(--borde);
+      border-radius: 16px;
+    }
+
+    .historial-vacio p:first-child {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .historial-lista {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .historial-item {
+      background: var(--blanco);
+      border: 1px solid var(--borde);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .tipo-badge {
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .tipo-diagnostico { background: #EEF3FF; color: #1A5CFF; }
+    .tipo-medicacion  { background: #F0FDF4; color: #16A34A; }
+    .tipo-alergia     { background: #FEF2F2; color: #DC2626; }
+    .tipo-cirugia     { background: #FFF7ED; color: #C2410C; }
+    .tipo-vacuna      { background: #F5F3FF; color: #7C3AED; }
+    .tipo-estudio     { background: #ECFEFF; color: #0E7490; }
+    .tipo-nota        { background: #F9FAFB; color: #6B7280; }
+
+    .historial-item-body { flex: 1; }
+
+    .historial-item-titulo {
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 3px;
+    }
+
+    .historial-item-desc {
+      font-size: 0.82rem;
+      color: var(--gris);
+      line-height: 1.5;
+    }
+
+    .historial-item-meta {
+      font-size: 0.75rem;
+      color: var(--gris-claro);
+      margin-top: 6px;
+    }
+
+    .pendiente-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      background: var(--warning-bg);
+      color: var(--warning);
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 6px;
+    }
+
+    /* ── Loading ── */
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: var(--gris-claro);
+      font-size: 0.88rem;
+    }
+
+    /* ── Mensaje global ── */
+    #mensaje-global {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: none;
+      z-index: 999;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    #mensaje-global.exito  { background: var(--exito-bg);   color: var(--exito);   display: block; }
+    #mensaje-global.error  { background: var(--error-bg);   color: var(--error);   display: block; }
+    #mensaje-global.warning { background: var(--warning-bg); color: var(--warning); display: block; }
+
+    .hidden { display: none !important; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <header class="header">
-      <button id="logout-btn" class="btn btn--danger">Cerrar sesión</button>
-      <h1 id="nombre-paciente" class="header__title">Bienvenido, paciente</h1>
-    </header>
 
-    <main class="main-content">
-      <button id="btn-generar-qr" class="btn btn--primary">Generar QR para profesional</button>
-
-      <div id="qr-container" class="qr-container hidden">
-        <canvas id="qr-code" class="qr-container__canvas"></canvas>
-      </div>
-
-      <button id="btn-ver-historial" class="btn btn--secondary">Ver Historial Médico</button>
-    </main>
+<!-- Navbar -->
+<nav class="navbar">
+  <a href="/" class="navbar-brand">
+    <div class="navbar-brand-dot"></div>
+    Medic Data
+  </a>
+  <div class="navbar-right">
+    <span class="navbar-nombre">Hola, <span id="nombre-display">—</span></span>
+    <button class="btn-logout" id="btn-logout">Cerrar sesión</button>
   </div>
-  <script src="../js/config.js"></script>
-  <script src="../js/app.js"></script>
+</nav>
+
+<!-- Contenido principal -->
+<main class="main">
+
+  <div class="bienvenida">
+    <h1 id="titulo-bienvenida">Bienvenido</h1>
+    <p>Tu historial médico personal, seguro y siempre disponible.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- Card QR -->
+    <div class="card qr-card">
+      <div class="card-title">Compartir con profesional</div>
+      <button class="btn-qr" id="btn-generar-qr">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3"/></svg>
+        Generar código QR
+      </button>
+      <div class="qr-wrapper" id="qr-wrapper">
+        <canvas id="qr-canvas"></canvas>
+        <div class="qr-expira">⏱ Válido por 15 minutos</div>
+        <div class="qr-countdown" id="qr-countdown"></div>
+<div id="qr-url" style="font-size:0.72rem;color:var(--gris);word-break:break-all;text-align:center;margin-top:6px;padding:6px 10px;background:var(--fondo);border-radius:6px;display:none"></div>
+      </div>
+    </div>
+
+    <!-- Card datos personales -->
+    <div class="card">
+      <div class="card-title">Mis datos</div>
+      <div id="datos-personales">
+        <div class="loading">Cargando...</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Historial médico -->
+  <div class="historial-header">
+    <h2>Historial médico</h2>
+    <span class="badge-count" id="badge-count">0 registros</span>
+  </div>
+  <div id="historial-container">
+    <div class="loading">Cargando historial...</div>
+  </div>
+
+</main>
+
+<div id="mensaje-global"></div>
+
+<script src="../js/config.js"></script>
+<script>
+const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:3000' : '';
+
+// ── Verificar sesión ──────────────────────────────────────────────────────────
+const token  = sessionStorage.getItem('token');
+const role   = sessionStorage.getItem('role');
+const userId = sessionStorage.getItem('userId');
+const nombre = sessionStorage.getItem('nombre');
+
+if (!token || role !== 'patient') {
+  window.location.href = '/';
+}
+
+// ── UI inicial ────────────────────────────────────────────────────────────────
+document.getElementById('nombre-display').textContent     = nombre || 'Paciente';
+document.getElementById('titulo-bienvenida').textContent  = `Hola, ${nombre?.split(' ')[0] || 'Paciente'}`;
+
+// ── Mostrar mensaje toast ─────────────────────────────────────────────────────
+function toast(msg, tipo = 'exito') {
+  const el = document.getElementById('mensaje-global');
+  el.textContent = msg;
+  el.className = tipo;
+  setTimeout(() => { el.className = ''; el.style.display = 'none'; }, 3500);
+}
+
+// ── Logout ────────────────────────────────────────────────────────────────────
+document.getElementById('btn-logout').addEventListener('click', () => {
+  sessionStorage.clear();
+  window.location.href = '/';
+});
+
+// ── Cargar datos del paciente ─────────────────────────────────────────────────
+async function cargarDatosPaciente() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/historial/paciente/${userId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!res.ok) throw new Error('Error al cargar datos');
+    const data = await res.json();
+
+    // Datos personales
+    const p = data.paciente;
+    document.getElementById('datos-personales').innerHTML = `
+      <div class="dato-row"><span class="dato-label">Nombre</span><span class="dato-valor">${p.firstName} ${p.lastName}</span></div>
+      <div class="dato-row"><span class="dato-label">Email</span><span class="dato-valor">${p.email}</span></div>
+      <div class="dato-row"><span class="dato-label">Teléfono</span><span class="dato-valor">${p.phone || '—'}</span></div>
+    `;
+
+    // Historial
+    renderHistorial(data.historial);
+
+  } catch (err) {
+    document.getElementById('datos-personales').innerHTML = '<p style="color:#DC2626;font-size:.85rem">Error cargando datos</p>';
+    document.getElementById('historial-container').innerHTML = '';
+    toast('Error cargando el historial', 'error');
+  }
+}
+
+// ── Renderizar historial ──────────────────────────────────────────────────────
+function renderHistorial(historial) {
+  const container = document.getElementById('historial-container');
+  const badge     = document.getElementById('badge-count');
+
+  badge.textContent = `${historial.length} registro${historial.length !== 1 ? 's' : ''}`;
+
+  if (!historial.length) {
+    container.innerHTML = `
+      <div class="historial-vacio">
+        <p>📋</p>
+        <p>No hay registros médicos todavía.</p>
+        <p>Tu médico podrá cargar información después de escanear tu QR.</p>
+      </div>`;
+    return;
+  }
+
+  const tipoLabels = {
+    diagnostico: 'Diagnóstico',
+    medicacion:  'Medicación',
+    alergia:     'Alergia',
+    cirugia:     'Cirugía',
+    vacuna:      'Vacuna',
+    estudio:     'Estudio',
+    nota:        'Nota'
+  };
+
+  container.innerHTML = `<div class="historial-lista">
+    ${historial.map(item => `
+      <div class="historial-item">
+        <span class="tipo-badge tipo-${item.tipo}">${tipoLabels[item.tipo] || item.tipo}</span>
+        <div class="historial-item-body">
+          <div class="historial-item-titulo">
+            ${item.titulo}
+            ${item.acepta_paciente === 0 ? '<span class="pendiente-badge">Pendiente tu confirmación</span>' : ''}
+          </div>
+          ${item.descripcion ? `<div class="historial-item-desc">${item.descripcion}</div>` : ''}
+          <div class="historial-item-meta">
+            ${item.fecha_registro ? `Fecha: ${item.fecha_registro} · ` : ''}
+            Cargado por: ${item.prof_nombre || '—'} ${item.prof_apellido || ''}
+          </div>
+        </div>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+// ── Generar QR ────────────────────────────────────────────────────────────────
+let qrInterval = null;
+
+document.getElementById('btn-generar-qr').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-generar-qr');
+  btn.disabled = true;
+  btn.textContent = 'Generando...';
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/qr/generar`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+
+    // Generar QR en el canvas
+    const canvas = document.getElementById('qr-canvas');
+    await QRCode.toCanvas(canvas, data.url, {
+      width: 180,
+      margin: 1,
+      color: { dark: '#111827', light: '#FFFFFF' }
+    });
+
+    document.getElementById('qr-wrapper').classList.add('visible');
+
+    // Countdown de 15 minutos
+    if (qrInterval) clearInterval(qrInterval);
+    const expira = new Date(data.expires_at).getTime();
+
+    function actualizarCountdown() {
+      const resta = expira - Date.now();
+      if (resta <= 0) {
+        clearInterval(qrInterval);
+        document.getElementById('qr-countdown').textContent = 'QR expirado. Generá uno nuevo.';
+        document.getElementById('qr-wrapper').classList.remove('visible');
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3"/></svg> Generar código QR`;
+        return;
+      }
+      const min = Math.floor(resta / 60000);
+      const seg = Math.floor((resta % 60000) / 1000);
+      document.getElementById('qr-countdown').textContent =
+        `Expira en ${min}:${seg.toString().padStart(2, '0')}`;
+    }
+    const urlDiv = document.getElementById('qr-url');
+    urlDiv.textContent = data.url;
+    urlDiv.style.display = 'block';
+    actualizarCountdown();
+    qrInterval = setInterval(actualizarCountdown, 1000);
+
+    toast('QR generado. Mostráselo al profesional.');
+
+  } catch (err) {
+    toast('Error generando el QR', 'error');
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3"/></svg> Generar código QR`;
+  }
+});
+
+// ── Iniciar ───────────────────────────────────────────────────────────────────
+cargarDatosPaciente();
+</script>
+
 </body>
 </html>
