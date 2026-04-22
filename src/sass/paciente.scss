@@ -1,92 +1,146 @@
-@use "sass:color";
-@use "variables";
-@use "mixins";
+// Estilos específicos del panel de paciente
 
-.hidden {
-  display: none !important;
+.main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
 }
 
-body {
-  font-family: variables.$font-family;
-  margin: 0;
-  padding: 0;
-  background-color: variables.$secondary-color;
-  color: variables.$text-color;
-}
+// ── Bienvenida ────────────────────────────────────────────────────────────────
+.bienvenida {
+  margin-bottom: 2rem;
 
-.header {
-  background-color: #007bff;
-  padding: 1rem 1.5rem;
-  border-radius: 12px 12px 0 0;
-  color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  &__title {
-    margin: 0;
+  h1 {
+    font-family: 'DM Serif Display', serif;
     font-size: 1.8rem;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.25rem;
+  }
+
+  p {
+    font-size: 0.88rem;
+    color: var(--gris);
   }
 }
 
-.main-content {
-  max-width: 480px;
-  margin: 2rem auto;
-  padding: 1rem;
-  background: rgb(255, 0, 0);
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+// ── Grid de paneles ───────────────────────────────────────────────────────────
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.card-title {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gris-claro);
+  margin-bottom: 1rem;
+}
+
+.qr-card { grid-column: 1; }
+
+// ── Botón y display QR ────────────────────────────────────────────────────────
+.btn-qr {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--azul);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:hover    { background: var(--azul-hover); }
+  &:active   { transform: scale(0.99); }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.qr-wrapper {
+  display: none;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  margin-top: 1.2rem;
+  gap: 10px;
+
+  &.visible { display: flex; }
+
+  canvas {
+    border-radius: 12px;
+    border: 1px solid var(--borde);
+    padding: 10px;
+    background: white;
+  }
 }
 
-// Botones base (mobile first)
-.btn {
-  font-size: 1rem;
-  padding: 0.75rem 1.5rem;
-  border: none;
+.qr-expira {
+  font-size: 0.78rem;
+  color: var(--warning);
+  background: var(--warning-bg);
+  padding: 4px 12px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.qr-countdown {
+  font-size: 0.78rem;
+  color: var(--gris);
+  text-align: center;
+}
+
+#qr-url {
+  font-size: 0.72rem;
+  color: var(--gris);
+  word-break: break-all;
+  text-align: center;
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: var(--fondo);
+  border-radius: 6px;
+  display: none;
+}
+
+// ── Datos personales ──────────────────────────────────────────────────────────
+.dato-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--fondo);
+  font-size: 0.85rem;
+
+  &:last-child { border-bottom: none; }
+}
+
+.dato-label { color: var(--gris); }
+.dato-valor { font-weight: 500; text-align: right; }
+
+// ── Badge pendiente ───────────────────────────────────────────────────────────
+.pendiente-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  background: var(--warning-bg);
+  color: var(--warning);
+  padding: 2px 8px;
   border-radius: 4px;
-
-  &--primary {
-    background-color: variables.$primary-color;
-    color: white;
-    @include mixins.button-hover(variables.$primary-color);
-  }
-
-  &--secondary {
-    background-color: variables.$secondary-color;
-    color: variables.$text-color;
-    @include mixins.button-hover(variables.$secondary-color);
-  }
-}
-
-.btn--danger {
-  background-color: variables.$danger-color;
-  color: white;
-}
-
-.btn--danger:hover {
-  background-color: color.adjust(variables.$danger-color, $lightness: -10%);
-}
-
-// Ajustes para pantallas mayores
-@media (min-width: 768px) {
-  .btn {
-    font-size: 1.1rem;
-    padding: 1rem 2rem;
-  }
-}
-
-.qr-container {
-  padding: 1rem;
-  border: 2px solid variables.$primary-color;
-  border-radius: 8px;
-  background-color: #e9f0ff;
-
-  &__canvas {
-    display: block;
-    margin: 0 auto;
-  }
+  margin-left: 6px;
 }

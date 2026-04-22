@@ -1,197 +1,238 @@
-@use "sass:color";
-@use "variables";
-@use "mixins";
+// Estilos específicos de la página de login/registro
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: variables.$font-family;
-  background-color: variables.$secondary-color;
-  color: variables.$text-color;
+body.login-layout {
   display: flex;
-  justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  justify-content: center;
   padding: 1rem;
 }
 
-.container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+// ── Layout principal ──────────────────────────────────────────────────────────
+.wrapper {
+  display: flex;
   width: 100%;
-  max-width: 420px;
-  padding: 2rem;
+  max-width: 900px;
+  min-height: 560px;
+  background: var(--blanco);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 40px rgba(0, 0, 0, 0.08);
 }
 
-h1 {
-  text-align: center;
-  color: variables.$primary-color;
-  margin-bottom: 1.5rem;
-  font-weight: 700;
+// ── Panel izquierdo decorativo ────────────────────────────────────────────────
+.panel-izq {
+  width: 42%;
+  background: var(--azul);
+  padding: 3rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    top: -80px;
+    right: -80px;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.04);
+    bottom: -60px;
+    left: -60px;
+  }
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 22px;
+    height: 22px;
+    fill: white;
+  }
+}
+
+.logo-texto {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.3rem;
+  color: white;
+  letter-spacing: -0.02em;
+}
+
+.panel-izq-copy {
+  position: relative;
+  z-index: 1;
+
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.9rem;
+    color: white;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.7;
+  }
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.feature-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+}
+
+// ── Panel derecho — formularios ───────────────────────────────────────────────
+.panel-der {
+  flex: 1;
+  padding: 3rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  &.scroll { overflow-y: auto; }
+}
+
+.form-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.6rem;
+  color: var(--texto);
+  margin-bottom: 0.3rem;
+  letter-spacing: -0.02em;
+}
+
+.form-sub {
+  font-size: 0.85rem;
+  color: var(--gris);
+  margin-bottom: 1.8rem;
 }
 
 form {
   display: flex;
   flex-direction: column;
-  
-  label {
-    margin-bottom: 0.25rem;
-    font-weight: 600;
-    font-size: 0.9rem;
-  }
+  gap: 14px;
+}
 
-  input, select, textarea {
-    padding: 0.75rem 1rem;
-    margin-bottom: 1rem;
-    border: 1.5px solid color.adjust(variables.$primary-color, $lightness: 40%);
-    border-radius: 6px;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
+// Sobreescribir el margin-bottom del .campo heredado de _shared dentro del login
+.panel-der .campo {
+  margin-bottom: 0;
+}
 
-    &:focus {
-      border-color: variables.$primary-color;
-      outline: none;
-      box-shadow: 0 0 6px color.adjust(variables.$primary-color, $lightness: -20%);
-    }
-  }
+.fila-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.btn-principal {
+  margin-top: 4px;
+  padding: 0.75rem;
+  background: var(--azul);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+
+  &:hover  { opacity: 0.9; }
+  &:active { transform: scale(0.99); }
+}
+
+.cambiar-form {
+  text-align: center;
+  font-size: 0.83rem;
+  color: var(--gris);
+  margin-top: 6px;
 
   button {
-    background-color: variables.$primary-color;
-    color: white;
+    background: none;
     border: none;
-    border-radius: 2px;
-    padding: 0.85rem 1rem;
-    font-weight: 700;
-    font-size: 1.1rem;
+    color: var(--azul);
+    font-weight: 500;
+    font-size: 0.83rem;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    font-family: 'DM Sans', sans-serif;
+    padding: 0;
+    width: auto;
 
-    &:hover {
-      background-color: color.adjust(variables.$primary-color, $lightness: -10%);
-    }
-  }
-
-  p {
-    font-size: 0.9rem;
-    text-align: center;
-    padding-top: 5px;
-
-    button {
-      background: none;
-      border: none;
-      color: variables.$primary-color;
-      cursor: pointer;
-      font-weight: 600;
-      padding: 2px 4px;
-      margin-left: 0.25rem;
-      text-decoration: underline;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-
-      &:hover {
-        background-color: color.adjust(variables.$primary-color, $lightness: -10%);
-        color: #f8f9fa;
-        padding: 2px 4px;
-        transform: scale(1.05);
-      }
-    }
+    &:hover { text-decoration: underline; }
   }
 }
 
-#message {
+#message,
+#messageReg {
+  margin-top: 10px;
+  font-size: 0.83rem;
   text-align: center;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  min-height: 1.2rem;
-  color: variables.$danger-color;
+  min-height: 20px;
+  border-radius: 8px;
+  padding: 0 0.5rem;
+
+  &.error { color: var(--error); }
+  &.exito { color: var(--exito); }
 }
 
-#panel {
-  margin-top: 1rem;
-
-  h2 {
-    text-align: center;
-    margin-bottom: 1rem;
-    font-weight: 700;
-    color: variables.$primary-color;
-  }
-
-  #patientPanel, #professionalPanel {
-    background-color: color.adjust(variables.$primary-color, $lightness: 45%);
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    color: variables.$text-color;
-  }
-
-  pre {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    font-family: monospace;
-  }
-
-  textarea {
-    resize: vertical;
-    min-height: 120px;
-  }
-
-  button#logoutBtn {
-    background-color: variables.$danger-color;
-    margin-top: 0.5rem;
-
-    &:hover {
-      background-color: color.adjust(variables.$danger-color, $lightness: -10%);
-    }
-  }
-}
-
-form {
-  opacity: 1;
-  visibility: visible;
-  max-height: 1000px; // alto suficientemente grande para el formulario
-  overflow: hidden;
-  transition: opacity 0.4s ease, max-height 0.5s ease, visibility 0.4s ease;
-}
-
-.hidden {
-  display: none !important;
-  opacity: 0;
-  visibility: hidden;
-  max-height: 0;
-  pointer-events: none;
-}
-
-// Transición general para formularios (visibilidad + opacidad + desplazamiento)
-form {
-  transition: opacity 0.4s ease, transform 0.4s ease;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-form.hidden {
-  opacity: 0;
-  transform: translateY(20px);
-  pointer-events: none; // para que no se pueda clickear cuando está oculto
-  position: absolute; // para que no ocupe espacio
-  left: 0;
-  right: 0;
-}
-
-// Botones con transición suave y efecto hover
-button {
-  transition: background-color 0.3s ease, transform 0.2s ease;
-
-  &:hover {
-    transform: scale(1.05);
-  }
-}
-
-.titulo{
-    display: flex;
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 640px) {
+  .wrapper {
     flex-direction: column;
-    align-items: center;
+    border-radius: 16px;
+  }
+
+  .panel-izq {
+    width: 100%;
+    padding: 2rem;
+    min-height: auto;
+  }
+
+  .panel-izq-copy,
+  .features { display: none; }
+
+  .panel-der { padding: 2rem 1.5rem; }
 }

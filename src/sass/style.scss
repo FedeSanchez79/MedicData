@@ -1,4 +1,5 @@
-@use "./variables";
-@use "./mixins";
-@use "./paciente";
-@use "./index";
+@use './variables';
+@use './shared';
+@use './index';
+@use './paciente';
+@use './profesional';
