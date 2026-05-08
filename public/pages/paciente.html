@@ -32,21 +32,6 @@
 
   <div class="grid">
 
-    <!-- Card QR -->
-    <div class="card qr-card">
-      <div class="card-title">Compartir con profesional</div>
-      <button class="btn-qr" id="btn-generar-qr">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3"/></svg>
-        Generar código QR
-      </button>
-      <div class="qr-wrapper" id="qr-wrapper">
-        <canvas id="qr-canvas"></canvas>
-        <div class="qr-expira">⏱ Válido por 15 minutos</div>
-        <div class="qr-countdown" id="qr-countdown"></div>
-        <div id="qr-url"></div>
-      </div>
-    </div>
-
     <!-- Card datos personales -->
     <div class="card">
       <div class="card-title">Mis datos</div>
@@ -70,7 +55,6 @@
 
 <div id="mensaje-global"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script src="../js/paciente.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-// Componentes compartidos entre las páginas de paciente y profesional
+// Componentes compartidos
 
 // ── Navbar ────────────────────────────────────────────────────────────────────
 .navbar {
@@ -65,7 +65,7 @@
   }
 }
 
-// ── Formularios (login + modal profesional) ───────────────────────────────────
+// ── Formularios ───────────────────────────────────────────────────────────────
 .campo {
   display: flex;
   flex-direction: column;

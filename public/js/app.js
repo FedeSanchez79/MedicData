@@ -152,12 +152,7 @@ loginForm?.addEventListener('submit', async (e) => {
     sessionStorage.setItem('username', payload.username);
     sessionStorage.setItem('nombre',   `${payload.firstName} ${payload.lastName}`);
 
-    // Redirigir según rol
-    if (payload.role === 'patient') {
-      window.location.href = '/pages/paciente.html';
-    } else if (payload.role === 'professional') {
-      window.location.href = '/pages/profesional.html';
-    }
+    window.location.href = '/pages/paciente.html';
 
   } catch (error) {
     showMessage('Error conectando con el servidor.');
