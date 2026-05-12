@@ -112,6 +112,32 @@ app.post('/login', async (req, res) => {
   }
 });
 
+// Actualizar perfil del paciente
+app.put('/perfil/:id', authenticateToken, async (req, res) => {
+  const { id: userId } = req.user;
+  if (userId !== parseInt(req.params.id)) {
+    return res.status(403).json({ message: 'Acceso denegado' });
+  }
+
+  const { foto, dni, fecha_nacimiento, cobertura_medica, numero_afiliado, phone } = req.body;
+
+  if (foto && foto.length > 2_000_000) {
+    return res.status(400).json({ message: 'La imagen es demasiado grande. Máximo 1.5MB.' });
+  }
+
+  try {
+    const db = await openDb();
+    await db.run(
+      `UPDATE users SET foto=?, dni=?, fecha_nacimiento=?, cobertura_medica=?, numero_afiliado=?, phone=? WHERE id=?`,
+      [foto ?? null, dni || null, fecha_nacimiento || null, cobertura_medica || null, numero_afiliado || null, phone || null, userId]
+    );
+    res.json({ message: 'Perfil actualizado correctamente' });
+  } catch (err) {
+    console.error('Error en PUT /perfil:', err);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 // ─── Rutas protegidas ─────────────────────────────────────────────────────────
 
 // Historial del paciente

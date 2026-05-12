@@ -31,6 +31,16 @@ export async function initDb() {
     );
   `);
 
+  for (const col of [
+    'ALTER TABLE users ADD COLUMN foto TEXT',
+    'ALTER TABLE users ADD COLUMN dni TEXT',
+    'ALTER TABLE users ADD COLUMN fecha_nacimiento DATE',
+    'ALTER TABLE users ADD COLUMN cobertura_medica TEXT',
+    'ALTER TABLE users ADD COLUMN numero_afiliado TEXT',
+  ]) {
+    await db.run(col).catch(() => {});
+  }
+
   await db.exec(`
     CREATE TABLE IF NOT EXISTS medical_records (
       id              INTEGER PRIMARY KEY AUTOINCREMENT,

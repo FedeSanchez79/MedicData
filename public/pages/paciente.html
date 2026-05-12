@@ -30,16 +30,64 @@
     <p>Tu historial médico personal, seguro y siempre disponible.</p>
   </div>
 
-  <div class="grid">
-
-    <!-- Card datos personales -->
-    <div class="card">
+  <!-- Card datos personales -->
+  <div class="card perfil-card">
+    <div class="card-header">
       <div class="card-title">Mis datos</div>
-      <div id="datos-personales">
-        <div class="loading">Cargando...</div>
-      </div>
+      <button class="btn-editar" id="btn-editar-perfil">Editar</button>
     </div>
 
+    <!-- Vista -->
+    <div id="perfil-view">
+      <div class="loading">Cargando...</div>
+    </div>
+
+    <!-- Edición -->
+    <div id="perfil-edit" class="hidden">
+      <form id="form-perfil">
+        <div class="avatar-edit-area">
+          <div class="avatar" id="avatar-edit">?</div>
+          <div>
+            <label class="btn-foto" for="foto-input">Cambiar foto</label>
+            <input type="file" id="foto-input" accept="image/*" class="hidden">
+            <p class="foto-hint">Máx. 1MB — JPG, PNG</p>
+          </div>
+        </div>
+
+        <div class="campo-seccion">Datos personales</div>
+        <div class="fila-2">
+          <div class="campo">
+            <label for="dni-input">DNI</label>
+            <input type="text" id="dni-input" placeholder="12.345.678">
+          </div>
+          <div class="campo">
+            <label for="nacimiento-input">Fecha de nacimiento</label>
+            <input type="date" id="nacimiento-input">
+          </div>
+        </div>
+        <div class="campo">
+          <label for="telefono-input">Teléfono</label>
+          <input type="tel" id="telefono-input" placeholder="+54 11 1234-5678">
+        </div>
+
+        <div class="campo-seccion">Cobertura médica</div>
+        <div class="fila-2">
+          <div class="campo">
+            <label for="cobertura-input">Nombre de la cobertura</label>
+            <input type="text" id="cobertura-input" placeholder="OSDE, PAMI...">
+          </div>
+          <div class="campo">
+            <label for="afiliado-input">N° de afiliado</label>
+            <input type="text" id="afiliado-input" placeholder="123456789">
+          </div>
+        </div>
+
+        <div class="perfil-acciones">
+          <button type="button" class="btn-cancelar" id="btn-cancelar-perfil">Cancelar</button>
+          <button type="submit" class="btn-principal btn-guardar">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- Historial médico -->
