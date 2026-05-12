@@ -73,8 +73,11 @@ function renderVista(p) {
   document.getElementById('perfil-view').innerHTML = `
     <div class="perfil-avatar-area">
       <div class="avatar">${p.foto ? `<img src="${p.foto}" alt="Foto">` : (ini || '?')}</div>
-      <div>
-        <div class="perfil-nombre-big">${esc(p.firstName)} ${esc(p.lastName)}</div>
+      <div class="perfil-nombre-wrap">
+        <div class="perfil-nombre-row">
+          <div class="perfil-nombre-big">${esc(p.firstName)} ${esc(p.lastName)}</div>
+          <button class="btn-editar" id="btn-editar-perfil">Editar</button>
+        </div>
         <div class="perfil-email-small">${esc(p.email)}</div>
       </div>
     </div>
@@ -86,7 +89,8 @@ function renderVista(p) {
 }
 
 // ── Editar / Cancelar ─────────────────────────────────────────────────────────
-document.getElementById('btn-editar-perfil').addEventListener('click', () => {
+document.addEventListener('click', (e) => {
+  if (e.target.id !== 'btn-editar-perfil') return;
   if (!perfilActual) return;
 
   document.getElementById('dni-input').value        = perfilActual.dni || '';

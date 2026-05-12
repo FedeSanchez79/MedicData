@@ -209,6 +209,17 @@
   border-bottom: 1px solid var(--borde);
 }
 
+.perfil-nombre-wrap {
+  flex: 1;
+}
+
+.perfil-nombre-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+
 .perfil-nombre-big {
   font-size: 1.05rem;
   font-weight: 500;
