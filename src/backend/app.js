@@ -112,6 +112,27 @@ app.post('/login', async (req, res) => {
   }
 });
 
+// Obtener perfil del paciente
+app.get('/perfil/:id', authenticateToken, async (req, res) => {
+  const { id: userId } = req.user;
+  if (userId !== parseInt(req.params.id)) {
+    return res.status(403).json({ message: 'Acceso denegado' });
+  }
+
+  try {
+    const db = await openDb();
+    const paciente = await db.get(
+      `SELECT id, firstName, lastName, email, phone, foto, dni, fecha_nacimiento, cobertura_medica, numero_afiliado FROM users WHERE id = ? AND role = 'patient'`,
+      req.params.id
+    );
+    if (!paciente) return res.status(404).json({ message: 'Paciente no encontrado' });
+    res.json(paciente);
+  } catch (err) {
+    console.error('Error en GET /perfil:', err);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 // Actualizar perfil del paciente
 app.put('/perfil/:id', authenticateToken, async (req, res) => {
   const { id: userId } = req.user;
