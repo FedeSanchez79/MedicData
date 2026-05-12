@@ -1,5 +1,21 @@
 @use "sass:color";
 
+// ── Breakpoints ───────────────────────────────────────────────────────────────
+// xs: 360px  | Teléfonos muy pequeños
+// sm: 480px  | Teléfonos
+// md: 640px  | Teléfonos grandes
+// lg: 768px  | Tablet portrait
+// xl: 1024px | Tablet landscape / desktop pequeño
+// 2xl: 1280px| Desktop
+// 3xl: 1440px| Desktop grande / pantallas wide
+
+@mixin xs   { @media (max-width: 360px)  { @content; } }
+@mixin sm   { @media (max-width: 480px)  { @content; } }
+@mixin md   { @media (max-width: 640px)  { @content; } }
+@mixin lg   { @media (max-width: 768px)  { @content; } }
+@mixin xl   { @media (max-width: 1024px) { @content; } }
+@mixin wide { @media (min-width: 1440px) { @content; } }
+
 @mixin button-hover($color) {
   transition: background-color 0.3s ease, transform 0.2s ease;
   cursor: pointer;

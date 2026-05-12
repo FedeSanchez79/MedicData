@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 // Estilos específicos del panel de paciente
 
 .main {
@@ -30,9 +32,7 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
 
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-  }
+  @include md { grid-template-columns: 1fr; }
 }
 
 .card {
@@ -143,4 +143,66 @@
   padding: 2px 8px;
   border-radius: 4px;
   margin-left: 6px;
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+// Desktop grande (≥ 1440px)
+@include wide {
+  .main { max-width: 1100px; }
+}
+
+// Tablet landscape (≤ 1024px)
+@include xl {
+  .main { max-width: 100%; }
+}
+
+// Tablet portrait (≤ 768px)
+@include lg {
+  .main { padding: 1.5rem 1.25rem; }
+
+  .bienvenida {
+    margin-bottom: 1.5rem;
+    h1 { font-size: 1.5rem; }
+  }
+
+  .card { padding: 1.25rem; }
+}
+
+// Móvil grande (≤ 640px) — .grid ya maneja su breakpoint inline
+
+// Móvil (≤ 480px)
+@include sm {
+  .main { padding: 1rem; }
+
+  .bienvenida {
+    margin-bottom: 1.25rem;
+    h1 { font-size: 1.3rem; }
+    p  { font-size: 0.82rem; }
+  }
+
+  .card { padding: 1rem; }
+
+  .dato-row {
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 0;
+  }
+
+  .dato-valor { text-align: left; }
+
+  .qr-wrapper canvas { max-width: 160px; }
+}
+
+// Móvil XS (≤ 360px)
+@include xs {
+  .main { padding: 0.75rem; }
+
+  .bienvenida h1 { font-size: 1.1rem; }
+
+  .card { padding: 0.875rem; }
+
+  .card-title { font-size: 0.7rem; }
+
+  .btn-qr { font-size: 0.85rem; }
 }

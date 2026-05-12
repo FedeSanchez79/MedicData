@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 // Componentes compartidos
 
 // ── Navbar ────────────────────────────────────────────────────────────────────
@@ -218,4 +220,59 @@ textarea {
   padding: 2rem;
   color: var(--gris-claro);
   font-size: 0.88rem;
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+// Tablet (≤ 768px)
+@include lg {
+  .navbar { padding: 0 1.5rem; }
+}
+
+// Móvil grande (≤ 640px)
+@include md {
+  .navbar { padding: 0 1rem; }
+
+  .navbar-nombre { display: none; }
+
+  #mensaje-global {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    text-align: center;
+  }
+}
+
+// Móvil (≤ 480px)
+@include sm {
+  .navbar { height: 52px; }
+
+  .navbar-brand { font-size: 1rem; }
+
+  .btn-logout {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+  }
+
+  .historial-item {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .historial-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
+
+// Móvil XS (≤ 360px)
+@include xs {
+  .navbar { padding: 0 0.75rem; }
+
+  .navbar-brand-dot { display: none; }
+
+  .historial-item { padding: 0.75rem 1rem; }
+
+  .historial-vacio { padding: 2rem 1rem; }
 }

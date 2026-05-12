@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 // Estilos específicos de la página de login/registro
 
 body.login-layout {
@@ -219,10 +221,46 @@ form {
 }
 
 // ── Responsive ────────────────────────────────────────────────────────────────
-@media (max-width: 640px) {
+
+// Desktop grande (≥ 1440px)
+@include wide {
+  .wrapper { max-width: 1000px; }
+}
+
+// Tablet landscape (≤ 1024px)
+@include xl {
+  .wrapper { max-width: 780px; }
+
+  .panel-izq {
+    width: 38%;
+    padding: 2.5rem 2rem;
+  }
+
+  .panel-izq-copy h2 { font-size: 1.6rem; }
+
+  .panel-der { padding: 2.5rem 2rem; }
+}
+
+// Tablet portrait (≤ 768px)
+@include lg {
+  .wrapper { max-width: 100%; }
+
+  .panel-izq {
+    width: 35%;
+    padding: 2rem 1.5rem;
+  }
+
+  .panel-izq-copy h2 { font-size: 1.4rem; }
+
+  .panel-der { padding: 2rem 1.75rem; }
+}
+
+// Móvil grande (≤ 640px)
+@include md {
   .wrapper {
     flex-direction: column;
     border-radius: 16px;
+    min-height: auto;
   }
 
   .panel-izq {
@@ -235,4 +273,45 @@ form {
   .features { display: none; }
 
   .panel-der { padding: 2rem 1.5rem; }
+}
+
+// Móvil (≤ 480px)
+@include sm {
+  body.login-layout {
+    padding: 0.75rem;
+    align-items: flex-start;
+    padding-top: 1.25rem;
+  }
+
+  .wrapper { border-radius: 12px; }
+
+  .panel-izq { padding: 1.5rem; }
+
+  .panel-der { padding: 1.5rem 1.25rem; }
+
+  .form-title { font-size: 1.4rem; }
+
+  .form-sub { margin-bottom: 1.4rem; }
+
+  .fila-2 { grid-template-columns: 1fr; }
+}
+
+// Móvil XS (≤ 360px)
+@include xs {
+  body.login-layout { padding: 0.5rem; padding-top: 1rem; }
+
+  .wrapper { border-radius: 8px; }
+
+  .panel-izq { padding: 1.25rem; }
+
+  .panel-der { padding: 1.25rem 1rem; }
+
+  .form-title { font-size: 1.2rem; }
+
+  .form-sub {
+    font-size: 0.8rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .btn-principal { font-size: 0.85rem; }
 }
