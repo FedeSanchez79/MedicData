@@ -55,9 +55,9 @@ registerForm?.addEventListener('submit', async (e) => {
   const username        = document.getElementById('usernameReg').value.trim();
   const password        = document.getElementById('passwordReg').value;
   const confirmPassword = document.getElementById('confirmPasswordReg').value;
-  const role            = document.getElementById('roleReg').value;
+  const role            = 'patient';
 
-  if (!firstName || !lastName || !phone || !email || !username || !password || !confirmPassword || !role) {
+  if (!firstName || !lastName || !phone || !email || !username || !password || !confirmPassword) {
     showMessage('Por favor completá todos los campos.', true, true);
     return;
   }
