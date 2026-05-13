@@ -202,3 +202,52 @@ async function cargarPerfil() {
 }
 
 cargarPerfil();
+
+// ── QR médico ─────────────────────────────────────────────────────────────────
+const btnQR       = document.getElementById('btn-generar-qr');
+const qrWrapper   = document.getElementById('qr-wrapper');
+const qrImg       = document.getElementById('qr-img');
+const qrCountdown = document.getElementById('qr-countdown');
+let qrInterval    = null;
+
+function actualizarCountdown(expiresAt) {
+  const diff = new Date(expiresAt) - Date.now();
+  if (diff <= 0) {
+    qrCountdown.textContent = 'QR expirado';
+    clearInterval(qrInterval);
+    return;
+  }
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  qrCountdown.textContent = `Expira en ${h}h ${String(m).padStart(2, '0')}m`;
+}
+
+btnQR.addEventListener('click', async () => {
+  btnQR.disabled = true;
+  btnQR.textContent = 'Generando...';
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/qr/generar`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.message || `HTTP ${res.status}`);
+    }
+    const { qr_image, expires_at } = await res.json();
+
+    qrImg.src = qr_image;
+    qrWrapper.classList.add('visible');
+
+    if (qrInterval) clearInterval(qrInterval);
+    actualizarCountdown(expires_at);
+    qrInterval = setInterval(() => actualizarCountdown(expires_at), 30000);
+
+  } catch (err) {
+    console.error('QR error:', err);
+    toast(err.message || 'Error generando el QR', 'error');
+  } finally {
+    btnQR.disabled = false;
+    btnQR.textContent = 'Generar nuevo QR';
+  }
+});

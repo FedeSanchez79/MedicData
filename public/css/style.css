@@ -778,7 +778,7 @@ form {
 .qr-wrapper.visible {
   display: flex;
 }
-.qr-wrapper canvas {
+.qr-wrapper img {
   border-radius: 12px;
   border: 1px solid var(--borde);
   padding: 10px;
@@ -810,6 +810,12 @@ form {
   background: var(--fondo);
   border-radius: 6px;
   display: none;
+}
+
+.qr-desc {
+  font-size: 0.85rem;
+  color: var(--gris);
+  margin-bottom: 1rem;
 }
 
 .dato-row {
@@ -1059,7 +1065,7 @@ form {
   .dato-valor {
     text-align: left;
   }
-  .qr-wrapper canvas {
+  .qr-wrapper img {
     max-width: 160px;
   }
 }

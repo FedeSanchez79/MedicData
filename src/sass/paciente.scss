@@ -85,7 +85,7 @@
 
   &.visible { display: flex; }
 
-  canvas {
+  img {
     border-radius: 12px;
     border: 1px solid var(--borde);
     padding: 10px;
@@ -118,6 +118,13 @@
   background: var(--fondo);
   border-radius: 6px;
   display: none;
+}
+
+// ── Descripción QR ───────────────────────────────────────────────────────────
+.qr-desc {
+  font-size: 0.85rem;
+  color: var(--gris);
+  margin-bottom: 1rem;
 }
 
 // ── Datos personales ──────────────────────────────────────────────────────────
@@ -361,7 +368,7 @@
 
   .dato-valor { text-align: left; }
 
-  .qr-wrapper canvas { max-width: 160px; }
+  .qr-wrapper img { max-width: 160px; }
 }
 
 // Móvil XS (≤ 360px)

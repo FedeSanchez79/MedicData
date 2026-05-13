@@ -37,6 +37,8 @@ export async function initDb() {
     'ALTER TABLE users ADD COLUMN fecha_nacimiento DATE',
     'ALTER TABLE users ADD COLUMN cobertura_medica TEXT',
     'ALTER TABLE users ADD COLUMN numero_afiliado TEXT',
+    'ALTER TABLE users ADD COLUMN qr_token TEXT',
+    'ALTER TABLE users ADD COLUMN qr_token_expires DATETIME',
   ]) {
     await db.run(col).catch(() => {});
   }

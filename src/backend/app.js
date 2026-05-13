@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import QRCode from 'qrcode';
 import { openDb, initDb } from './database.js';
 import pacienteRouter from './routes/paciente.js';
 
@@ -160,6 +162,25 @@ app.put('/perfil/:id', authenticateToken, async (req, res) => {
 });
 
 // ─── Rutas protegidas ─────────────────────────────────────────────────────────
+
+// Generar QR token del paciente
+app.get('/api/qr/generar', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const db = await openDb();
+    const qrToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    await db.run(
+      'UPDATE users SET qr_token = ?, qr_token_expires = ? WHERE id = ?',
+      [qrToken, expiresAt, userId]
+    );
+    const qrImage = await QRCode.toDataURL(qrToken, { width: 220, margin: 2 });
+    res.json({ token: qrToken, expires_at: expiresAt, qr_image: qrImage });
+  } catch (err) {
+    console.error('Error en GET /api/qr/generar:', err);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
 
 // Historial del paciente
 app.use('/historial/paciente', authenticateToken, pacienteRouter);
