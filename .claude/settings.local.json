@@ -1,7 +1,33 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx sass *)"
+      "Bash(npx sass *)",
+      "PowerShell(Get-ChildItem -Recurse -Force C:\\\\Users\\\\admin\\\\desktop\\\\medicdata | Sort-Object FullName | ForEach-Object { if \\($_.PSIsContainer\\) { \"$\\($_.FullName\\)\\\\\" } else { $_.FullName } })",
+      "Bash(Remove-Item \"C:\\\\Users\\\\admin\\\\desktop\\\\medicdata\\\\public\\\\pages\\\\profesional.html\" -Force)",
+      "Bash(Remove-Item \"C:\\\\Users\\\\admin\\\\desktop\\\\medicdata\\\\public\\\\js\\\\profesional.js\" -Force)",
+      "Bash(Remove-Item \"C:\\\\Users\\\\admin\\\\desktop\\\\medicdata\\\\src\\\\sass\\\\profesional.scss\" -Force)",
+      "Bash(Write-Host \"Archivos eliminados\")",
+      "Read(//mnt/c/Users/admin/desktop/**)",
+      "Bash(node node_modules/.bin/sass src/sass/style.scss:public/css/style.css --no-source-map)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\admin\\\\onedrive\\\\desktop\\\\medicdata\" -Directory)",
+      "Bash(Select-Object Name)",
+      "Bash(node_modules\\\\.bin\\\\sass src/sass/style.scss public/css/style.css --no-source-map)",
+      "PowerShell(cd \"C:\\\\Users\\\\admin\\\\onedrive\\\\desktop\\\\medicdata\"; Select-String -Path \"public/css/style.css\" -Pattern \"@media\" | ForEach-Object { $_.Line.Trim\\(\\) })",
+      "PowerShell(cd \"C:\\\\Users\\\\admin\\\\onedrive\\\\desktop\\\\medicdata\"; \\(Get-Content \"public/css/style.css\"\\).Count)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "PowerShell(Start-Process \"http://localhost:3000\")",
+      "Bash(netstat -ano)",
+      "Bash(node src/backend/app.js)",
+      "Bash(curl *)",
+      "PowerShell(Stop-Process *)",
+      "Bash(tasklist /FI \"PID eq 11628\")",
+      "PowerShell(Get-Process *)",
+      "PowerShell(Get-NetTCPConnection *)",
+      "PowerShell(Start-Process node -ArgumentList \"src/backend/app.js\" -WorkingDirectory \"C:\\\\Users\\\\admin\\\\onedrive\\\\desktop\\\\medicdata\" -NoNewWindow -PassThru | Select-Object Id; Start-Sleep -Seconds 4; try { $r = Invoke-WebRequest -Uri \"http://localhost:3000/\" -TimeoutSec 5 -UseBasicParsing; \"HTTP $\\($r.StatusCode\\) — servidor responde OK en :3000\" } catch { \"Error: $_\" })",
+      "Bash(Get-ChildItem *)",
+      "Bash(npm install *)"
     ]
   }
 }

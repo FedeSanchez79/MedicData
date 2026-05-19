@@ -207,8 +207,65 @@ form {
   }
 }
 
+// ── Toggle mostrar/ocultar contraseña ─────────────────────────────────────────
+.campo-pass-wrapper {
+  position: relative;
+  width: 100%;
+
+  input { padding-right: 2.8rem; }
+
+  .toggle-pass {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0;
+    width: auto;
+    cursor: pointer;
+    color: var(--gris-claro);
+    display: flex;
+    align-items: center;
+    line-height: 0;
+
+    svg { width: 18px; height: 18px; }
+
+    &:hover { color: var(--gris); }
+
+    &:focus-visible {
+      outline: 2px solid var(--azul);
+      border-radius: 4px;
+    }
+  }
+}
+
+// ── Link olvidé mi contraseña ─────────────────────────────────────────────────
+.forgot-link-wrap {
+  text-align: right;
+  margin-top: -4px;
+}
+
+.forgot-link {
+  background: none;
+  border: none;
+  color: var(--gris);
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  padding: 0;
+  width: auto;
+
+  &:hover {
+    color: var(--azul);
+    text-decoration: underline;
+  }
+}
+
+// ── Mensajes de feedback ──────────────────────────────────────────────────────
 #message,
-#messageReg {
+#messageReg,
+#messageForgot {
   margin-top: 10px;
   font-size: 0.83rem;
   text-align: center;

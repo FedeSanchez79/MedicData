@@ -566,8 +566,63 @@ form {
   text-decoration: underline;
 }
 
+.campo-pass-wrapper {
+  position: relative;
+  width: 100%;
+}
+.campo-pass-wrapper input {
+  padding-right: 2.8rem;
+}
+.campo-pass-wrapper .toggle-pass {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  width: auto;
+  cursor: pointer;
+  color: var(--gris-claro);
+  display: flex;
+  align-items: center;
+  line-height: 0;
+}
+.campo-pass-wrapper .toggle-pass svg {
+  width: 18px;
+  height: 18px;
+}
+.campo-pass-wrapper .toggle-pass:hover {
+  color: var(--gris);
+}
+.campo-pass-wrapper .toggle-pass:focus-visible {
+  outline: 2px solid var(--azul);
+  border-radius: 4px;
+}
+
+.forgot-link-wrap {
+  text-align: right;
+  margin-top: -4px;
+}
+
+.forgot-link {
+  background: none;
+  border: none;
+  color: var(--gris);
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: "DM Sans", sans-serif;
+  padding: 0;
+  width: auto;
+}
+.forgot-link:hover {
+  color: var(--azul);
+  text-decoration: underline;
+}
+
 #message,
-#messageReg {
+#messageReg,
+#messageForgot {
   margin-top: 10px;
   font-size: 0.83rem;
   text-align: center;
@@ -576,11 +631,13 @@ form {
   padding: 0 0.5rem;
 }
 #message.error,
-#messageReg.error {
+#messageReg.error,
+#messageForgot.error {
   color: var(--error);
 }
 #message.exito,
-#messageReg.exito {
+#messageReg.exito,
+#messageForgot.exito {
   color: var(--exito);
 }
 

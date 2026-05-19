@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import QRCode from 'qrcode';
+import nodemailer from 'nodemailer';
 import { openDb, initDb } from './database.js';
 import pacienteRouter from './routes/paciente.js';
 
@@ -12,7 +13,34 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const PUBLIC_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 const JWT_SECRET = process.env.JWT_SECRET || 'secret_key';
+
+// ─── Email ────────────────────────────────────────────────────────────────────
+let transporter = null;
+if (process.env.MAIL_HOST) {
+  transporter = nodemailer.createTransport({
+    host: process.env.MAIL_HOST,
+    port: parseInt(process.env.MAIL_PORT) || 587,
+    secure: process.env.MAIL_SECURE === 'true',
+    auth: { user: process.env.MAIL_USER, pass: process.env.MAIL_PASS },
+  });
+} else {
+  console.warn('[Email] MAIL_HOST no configurado. Los links de recuperación se imprimirán en consola.');
+}
+
+async function sendResetEmail(to, firstName, resetUrl) {
+  if (!transporter) {
+    console.log(`[DEV] Reset link para ${to}:\n${resetUrl}`);
+    return;
+  }
+  await transporter.sendMail({
+    from: process.env.MAIL_FROM || '"Medic Data" <noreply@medicdata.com>',
+    to,
+    subject: 'Recuperar contraseña — Medic Data',
+    html: `<p>Hola ${firstName},</p><p>Recibimos una solicitud para resetear tu contraseña de Medic Data.</p><p><a href="${resetUrl}">Hacé clic aquí para crear una nueva contraseña</a></p><p>Este link expira en 1 hora. Si no solicitaste este cambio, ignorá este email.</p>`,
+  });
+}
 
 app.use(cors());
 app.use(express.json());
@@ -161,6 +189,60 @@ app.put('/perfil/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Solicitar reset de contraseña
+app.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: 'Email requerido' });
+
+  try {
+    const db = await openDb();
+    const user = await db.get('SELECT id, firstName, email FROM users WHERE email = ?', email);
+
+    if (user) {
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+      await db.run(
+        'UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE id = ?',
+        [resetToken, expiresAt, user.id]
+      );
+      const resetUrl = `${PUBLIC_URL}/pages/reset-password.html?token=${resetToken}`;
+      await sendResetEmail(user.email, user.firstName, resetUrl);
+    }
+
+    res.json({ message: 'Si el email está registrado, recibirás un link en breve.' });
+  } catch (err) {
+    console.error('Error en /forgot-password:', err);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Resetear contraseña con token
+app.post('/reset-password', async (req, res) => {
+  const { token, password } = req.body;
+  if (!token || !password) return res.status(400).json({ message: 'Datos incompletos' });
+
+  try {
+    const db = await openDb();
+    const user = await db.get(
+      'SELECT id FROM users WHERE reset_token = ? AND reset_token_expires > ?',
+      [token, new Date().toISOString()]
+    );
+
+    if (!user) return res.status(400).json({ message: 'El link es inválido o ha expirado.' });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await db.run(
+      'UPDATE users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?',
+      [hashedPassword, user.id]
+    );
+
+    res.json({ message: 'Contraseña actualizada correctamente.' });
+  } catch (err) {
+    console.error('Error en /reset-password:', err);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 // ─── Rutas protegidas ─────────────────────────────────────────────────────────
 
 // Generar QR token del paciente
@@ -174,7 +256,8 @@ app.get('/api/qr/generar', authenticateToken, async (req, res) => {
       'UPDATE users SET qr_token = ?, qr_token_expires = ? WHERE id = ?',
       [qrToken, expiresAt, userId]
     );
-    const qrImage = await QRCode.toDataURL(qrToken, { width: 220, margin: 2 });
+    const qrUrl = `${PUBLIC_URL}/ver-qr?token=${qrToken}`;
+    const qrImage = await QRCode.toDataURL(qrUrl, { width: 220, margin: 2 });
     res.json({ token: qrToken, expires_at: expiresAt, qr_image: qrImage });
   } catch (err) {
     console.error('Error en GET /api/qr/generar:', err);
