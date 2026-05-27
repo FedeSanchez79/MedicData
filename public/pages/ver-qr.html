@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Historial del Paciente — Medic Data</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .login-wrap {
+      max-width: 380px;
+      margin: 3rem auto 0;
+      padding: 0 1rem;
+    }
+    .login-wrap .form-title { margin-bottom: 0.25rem; }
+    .login-wrap .form-sub   { margin-bottom: 1.5rem; }
+    .login-wrap form        { gap: 12px; }
+    .login-wrap .campo      { display: flex; flex-direction: column; gap: 5px; }
+    #msg-login {
+      font-size: 0.82rem;
+      min-height: 1rem;
+      color: var(--error);
+    }
+    #msg-login:empty { display: none; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="navbar-brand">
+    <div class="navbar-brand-dot"></div>
+    Medic Data
+  </a>
+</nav>
+
+<main class="main">
+
+  <!-- Login profesional -->
+  <div id="estado-login" class="login-wrap">
+    <p class="form-title">Acceso profesional</p>
+    <p class="form-sub">Ingresá tus credenciales para ver el historial del paciente.</p>
+    <form id="login-form" novalidate>
+      <div class="campo">
+        <label for="inp-usuario">Usuario</label>
+        <input id="inp-usuario" type="text" autocomplete="username" placeholder="Tu usuario" required />
+      </div>
+      <div class="campo">
+        <label for="inp-pass">Contraseña</label>
+        <input id="inp-pass" type="password" autocomplete="current-password" placeholder="Tu contraseña" required />
+      </div>
+      <p id="msg-login"></p>
+      <button type="submit" class="btn-principal" id="btn-ingresar">Ingresar</button>
+    </form>
+  </div>
+
+  <!-- Cargando -->
+  <div id="estado-carga" class="hidden">
+    <div class="skeleton-bienvenida">
+      <div class="skeleton-line sk-h1"></div>
+      <div class="skeleton-line sk-sub"></div>
+    </div>
+    <div class="skeleton-card-block" style="animation-delay:.1s">
+      <div class="skeleton-line sk-card-label"></div>
+      <div class="skeleton-dato-row">
+        <div class="skeleton-line sk-dato-key"></div>
+        <div class="skeleton-line sk-dato-val"></div>
+      </div>
+      <div class="skeleton-dato-row">
+        <div class="skeleton-line sk-dato-key"></div>
+        <div class="skeleton-line sk-dato-val"></div>
+      </div>
+      <div class="skeleton-dato-row">
+        <div class="skeleton-line sk-dato-key"></div>
+        <div class="skeleton-line sk-dato-val"></div>
+      </div>
+      <div class="skeleton-dato-row">
+        <div class="skeleton-line sk-dato-key"></div>
+        <div class="skeleton-line sk-dato-val"></div>
+      </div>
+    </div>
+    <div class="skeleton-lista">
+      <div class="skeleton-item" style="animation-delay:.2s">
+        <div class="skeleton-badge"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-line sk-title"></div>
+          <div class="skeleton-line sk-desc"></div>
+          <div class="skeleton-line sk-meta"></div>
+        </div>
+      </div>
+      <div class="skeleton-item" style="animation-delay:.35s">
+        <div class="skeleton-badge"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-line sk-title"></div>
+          <div class="skeleton-line sk-desc"></div>
+          <div class="skeleton-line sk-meta"></div>
+        </div>
+      </div>
+      <div class="skeleton-item" style="animation-delay:.5s">
+        <div class="skeleton-badge"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-line sk-title"></div>
+          <div class="skeleton-line sk-desc"></div>
+          <div class="skeleton-line sk-meta"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div id="estado-error" class="hidden">
+    <div class="historial-vacio">
+      <p id="icono-error">⚠️</p>
+      <p id="mensaje-error"></p>
+    </div>
+  </div>
+
+  <!-- Contenido -->
+  <div id="estado-contenido" class="hidden">
+
+    <div class="bienvenida">
+      <h1 id="paciente-nombre">—</h1>
+      <p>Historial médico compartido via QR</p>
+    </div>
+
+    <div class="card perfil-card">
+      <div class="card-title">Datos del paciente</div>
+      <div class="dato-row">
+        <span class="dato-label">DNI</span>
+        <span class="dato-valor" id="dato-dni">—</span>
+      </div>
+      <div class="dato-row">
+        <span class="dato-label">Fecha de nacimiento</span>
+        <span class="dato-valor" id="dato-nacimiento">—</span>
+      </div>
+      <div class="dato-row">
+        <span class="dato-label">Cobertura médica</span>
+        <span class="dato-valor" id="dato-cobertura">—</span>
+      </div>
+      <div class="dato-row">
+        <span class="dato-label">N° de afiliado</span>
+        <span class="dato-valor" id="dato-afiliado">—</span>
+      </div>
+    </div>
+
+    <div class="historial-header">
+      <h2>Historial médico</h2>
+      <span class="badge-count" id="badge-count">0 registros</span>
+    </div>
+    <div id="historial-container"></div>
+
+  </div>
+
+</main>
+
+<script>
+const PROF_API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'https://localhost:3001' : '';
+
+const qrToken = new URLSearchParams(window.location.search).get('token');
+
+const estadoLogin    = document.getElementById('estado-login');
+const estadoCarga    = document.getElementById('estado-carga');
+const estadoError    = document.getElementById('estado-error');
+const estadoContenido = document.getElementById('estado-contenido');
+const msgLogin       = document.getElementById('msg-login');
+const btnIngresar    = document.getElementById('btn-ingresar');
+
+function mostrarError(icono, msg) {
+  estadoLogin.classList.add('hidden');
+  estadoCarga.classList.add('hidden');
+  document.getElementById('icono-error').textContent  = icono;
+  document.getElementById('mensaje-error').textContent = msg;
+  estadoError.classList.remove('hidden');
+}
+
+function esc(str) {
+  if (str == null) return '—';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+const tipoLabels = {
+  diagnostico: 'Diagnóstico',
+  medicacion:  'Medicación',
+  alergia:     'Alergia',
+  cirugia:     'Cirugía',
+  vacuna:      'Vacuna',
+  estudio:     'Estudio',
+  nota:        'Nota'
+};
+
+function renderHistorial(historial) {
+  const container = document.getElementById('historial-container');
+  const badge     = document.getElementById('badge-count');
+  badge.textContent = `${historial.length} registro${historial.length !== 1 ? 's' : ''}`;
+
+  if (!historial.length) {
+    container.innerHTML = `
+      <div class="historial-vacio">
+        <p>📋</p>
+        <p>No hay registros médicos.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = `<div class="historial-lista">
+    ${historial.map(item => `
+      <div class="historial-item">
+        <span class="tipo-badge tipo-${esc(item.tipo)}">${tipoLabels[item.tipo] || esc(item.tipo)}</span>
+        <div class="historial-item-body">
+          <div class="historial-item-titulo">${esc(item.titulo)}</div>
+          ${item.descripcion ? `<div class="historial-item-desc">${esc(item.descripcion)}</div>` : ''}
+          ${item.fecha_registro ? `<div class="historial-item-meta">Fecha: ${esc(item.fecha_registro)}</div>` : ''}
+        </div>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+async function cargarHistorial(profToken) {
+  estadoLogin.classList.add('hidden');
+  estadoCarga.classList.remove('hidden');
+
+  try {
+    const res = await fetch(`${PROF_API}/qr/acceder/${qrToken}`, {
+      headers: { 'Authorization': `Bearer ${profToken}` }
+    });
+
+    if (res.status === 410) {
+      mostrarError('⏱️', 'El QR expiró. Pedile al paciente que genere uno nuevo.');
+      return;
+    }
+    if (res.status === 401 || res.status === 403) {
+      mostrarError('🔒', 'No tenés permiso para ver este historial.');
+      return;
+    }
+    if (res.status === 404) {
+      mostrarError('🔗', 'El QR no es válido o ya fue utilizado.');
+      return;
+    }
+    if (!res.ok) {
+      mostrarError('⚠️', 'No se pudo obtener la información. Intentá de nuevo más tarde.');
+      return;
+    }
+
+    const data = await res.json();
+    const p    = data.paciente || data;
+
+    document.getElementById('paciente-nombre').textContent  = `${p.firstName || ''} ${p.lastName || ''}`.trim() || '—';
+    document.getElementById('dato-dni').textContent         = p.dni              || '—';
+    document.getElementById('dato-nacimiento').textContent  = p.fecha_nacimiento  || '—';
+    document.getElementById('dato-cobertura').textContent   = p.cobertura_medica  || '—';
+    document.getElementById('dato-afiliado').textContent    = p.numero_afiliado   || '—';
+
+    renderHistorial(Array.isArray(data.historial) ? data.historial : []);
+
+    estadoCarga.classList.add('hidden');
+    estadoContenido.classList.remove('hidden');
+
+  } catch {
+    mostrarError('📡', 'No se pudo conectar. Verificá tu conexión e intentá de nuevo.');
+  }
+}
+
+if (!qrToken) {
+  mostrarError('🔗', 'El enlace no es válido.');
+} else {
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    msgLogin.textContent = '';
+
+    const username = document.getElementById('inp-usuario').value.trim();
+    const password = document.getElementById('inp-pass').value;
+
+    if (!username || !password) {
+      msgLogin.textContent = 'Ingresá usuario y contraseña.';
+      return;
+    }
+
+    btnIngresar.disabled = true;
+    btnIngresar.textContent = 'Ingresando...';
+
+    try {
+      const res = await fetch(`${PROF_API}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        msgLogin.textContent = data.message || 'Usuario o contraseña incorrectos.';
+        btnIngresar.disabled = false;
+        btnIngresar.textContent = 'Ingresar';
+        return;
+      }
+
+      await cargarHistorial(data.token);
+
+    } catch {
+      msgLogin.textContent = 'No se pudo conectar con el servidor.';
+      btnIngresar.disabled = false;
+      btnIngresar.textContent = 'Ingresar';
+    }
+  });
+}
+</script>
+</body>
+</html>

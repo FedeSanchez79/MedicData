@@ -37,8 +37,9 @@ async function sendResetEmail(to, firstName, resetUrl) {
   await transporter.sendMail({
     from: process.env.MAIL_FROM || '"Medic Data" <noreply@medicdata.com>',
     to,
-    subject: 'Recuperar contraseña — Medic Data',
-    html: `<p>Hola ${firstName},</p><p>Recibimos una solicitud para resetear tu contraseña de Medic Data.</p><p><a href="${resetUrl}">Hacé clic aquí para crear una nueva contraseña</a></p><p>Este link expira en 1 hora. Si no solicitaste este cambio, ignorá este email.</p>`,
+    subject: { encoding: 'utf-8', data: 'Recuperar contraseña — Medic Data' },
+    html: { encoding: 'utf-8', data: `<p>Hola ${firstName},</p><p>Recibimos una solicitud para resetear tu contraseña de Medic Data.</p><p><a href="${resetUrl}">Hacé clic aquí para crear una nueva contraseña</a></p><p>Este link expira en 1 hora. Si no solicitaste este cambio, ignorá este email.</p>` },
+    charset: 'utf-8',
   });
 }
 
@@ -251,12 +252,12 @@ app.get('/api/qr/generar', authenticateToken, async (req, res) => {
   try {
     const db = await openDb();
     const qrToken = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
     await db.run(
       'UPDATE users SET qr_token = ?, qr_token_expires = ? WHERE id = ?',
       [qrToken, expiresAt, userId]
     );
-    const qrUrl = `${PUBLIC_URL}/ver-qr?token=${qrToken}`;
+    const qrUrl = `https://localhost:3001/pages/ver-paciente.html?token=${qrToken}`;
     const qrImage = await QRCode.toDataURL(qrUrl, { width: 220, margin: 2 });
     res.json({ token: qrToken, expires_at: expiresAt, qr_image: qrImage });
   } catch (err) {

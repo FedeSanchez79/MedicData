@@ -13,7 +13,10 @@
 <!-- Navbar -->
 <nav class="navbar">
   <a href="/" class="navbar-brand">
-    <div class="navbar-brand-dot"></div>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="#1A5CFF" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="10" y="3" width="4" height="18" rx="1"/>
+      <rect x="3" y="10" width="18" height="4" rx="1"/>
+    </svg>
     Medic Data
   </a>
   <div class="navbar-center">
@@ -34,13 +37,49 @@
     <p>Tu historial médico personal, seguro y siempre disponible.</p>
   </div>
 
+  <!-- Sección QR -->
+  <div class="qr-section">
+    <h2>Código QR médico</h2>
+    <p>Generá un código QR temporal para compartir tu historial con un médico. Expira en 15 minutos.</p>
+    <button class="btn-primary" id="btn-generar-qr">Generar QR</button>
+    <div id="qr-display" style="display:none; margin-top:1.2rem; text-align:center;">
+      <canvas id="qr-canvas" style="display:block; margin:0 auto; border-radius:8px;"></canvas>
+      <p class="qr-countdown">Expira en: <span id="qr-timer" style="font-weight:600;">15:00</span></p>
+    </div>
+  </div>
+
   <!-- Historial médico -->
   <div class="historial-header">
     <h2>Historial médico</h2>
     <span class="badge-count" id="badge-count">0 registros</span>
   </div>
   <div id="historial-container">
-    <div class="loading">Cargando historial...</div>
+    <div class="skeleton-lista">
+      <div class="skeleton-item">
+        <div class="skeleton-badge"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-line sk-title"></div>
+          <div class="skeleton-line sk-desc"></div>
+          <div class="skeleton-line sk-meta"></div>
+        </div>
+      </div>
+      <div class="skeleton-item" style="animation-delay:.15s">
+        <div class="skeleton-badge"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-line sk-title"></div>
+          <div class="skeleton-line sk-desc"></div>
+          <div class="skeleton-line sk-meta"></div>
+        </div>
+      </div>
+      <div class="skeleton-item" style="animation-delay:.3s">
+        <div class="skeleton-badge"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-line sk-title"></div>
+          <div class="skeleton-line sk-desc"></div>
+          <div class="skeleton-line sk-meta"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
 </main>

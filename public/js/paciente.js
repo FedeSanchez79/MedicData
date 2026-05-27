@@ -97,5 +97,53 @@ function renderHistorial(historial) {
   </div>`;
 }
 
+// ── QR ────────────────────────────────────────────────────────────────────────
+let qrCountdownInterval = null;
+
+document.getElementById('btn-generar-qr').addEventListener('click', async () => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/qr/generar`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+
+    const canvas = document.getElementById('qr-canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+    };
+    img.src = data.qr_image;
+
+    document.getElementById('qr-display').style.display = '';
+
+    if (qrCountdownInterval) clearInterval(qrCountdownInterval);
+    let secondsLeft = 15 * 60;
+
+    function updateTimer() {
+      const mins = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
+      const secs = (secondsLeft % 60).toString().padStart(2, '0');
+      document.getElementById('qr-timer').textContent = `${mins}:${secs}`;
+      if (secondsLeft <= 0) {
+        clearInterval(qrCountdownInterval);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        document.getElementById('qr-display').style.display = 'none';
+        toast('El QR expiró. Generá uno nuevo.', 'error');
+        return;
+      }
+      secondsLeft--;
+    }
+
+    updateTimer();
+    qrCountdownInterval = setInterval(updateTimer, 1000);
+
+  } catch {
+    toast('Error generando el QR', 'error');
+  }
+});
+
 // ── Iniciar ───────────────────────────────────────────────────────────────────
 cargarHistorial();

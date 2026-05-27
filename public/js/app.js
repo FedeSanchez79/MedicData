@@ -25,7 +25,15 @@ function limpiarMensajes() {
   if (messageDiv)       { messageDiv.textContent = '';       messageDiv.className = ''; }
   if (messageRegDiv)    { messageRegDiv.textContent = '';    messageRegDiv.className = ''; }
   if (messageForgotDiv) { messageForgotDiv.textContent = ''; messageForgotDiv.className = ''; }
+  const errPass = document.getElementById('error-passwordReg');
+  if (errPass) errPass.textContent = '';
 }
+
+// ─── Limpiar error de contraseña al escribir ──────────────────────────────────
+document.getElementById('passwordReg')?.addEventListener('input', () => {
+  const errEl = document.getElementById('error-passwordReg');
+  if (errEl) errEl.textContent = '';
+});
 
 // ─── Toggle mostrar/ocultar contraseña ────────────────────────────────────────
 document.querySelectorAll('.toggle-pass').forEach(btn => {
@@ -109,7 +117,8 @@ registerForm?.addEventListener('submit', async (e) => {
     return;
   }
   if (!passwordRegex.test(password)) {
-    showMessage('La contraseña debe tener 8-16 caracteres, una mayúscula, un número y un símbolo.', true, true);
+    const errEl = document.getElementById('error-passwordReg');
+    if (errEl) errEl.textContent = 'Mínimo 8 caracteres, una mayúscula, un número y un símbolo.';
     return;
   }
   if (password !== confirmPassword) {

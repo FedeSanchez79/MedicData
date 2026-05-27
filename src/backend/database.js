@@ -26,7 +26,7 @@ export async function initDb() {
       email         TEXT    UNIQUE NOT NULL,
       username      TEXT    UNIQUE NOT NULL,
       password      TEXT    NOT NULL,
-      role          TEXT    NOT NULL CHECK(role IN ('patient')),
+      role          TEXT    NOT NULL CHECK(role IN ('patient', 'professional')),
       created_at    DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
@@ -59,6 +59,17 @@ export async function initDb() {
       FOREIGN KEY (patient_id) REFERENCES users(id)
     );
   `);
+
+  for (const col of [
+    'ALTER TABLE medical_records ADD COLUMN subtipo TEXT',
+    'ALTER TABLE medical_records ADD COLUMN profesional_nombre TEXT',
+    'ALTER TABLE medical_records ADD COLUMN profesional_matricula TEXT',
+    'ALTER TABLE medical_records ADD COLUMN profesional_institucion TEXT',
+    'ALTER TABLE medical_records ADD COLUMN adjunto_base64 TEXT',
+    'ALTER TABLE medical_records ADD COLUMN adjunto_nombre TEXT',
+  ]) {
+    await db.run(col).catch(() => {});
+  }
 
   return db;
 }
