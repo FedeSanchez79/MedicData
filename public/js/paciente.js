@@ -57,11 +57,61 @@ async function cargarHistorial() {
   }
 }
 
+// ── Adjuntos ──────────────────────────────────────────────────────────────────
+const adjuntosMap = {};
+
+const IMG_EXTS = new Set(['png','jpg','jpeg','gif','webp','bmp']);
+const MIME_MAP = { pdf:'application/pdf', png:'image/png', jpg:'image/jpeg', jpeg:'image/jpeg', gif:'image/gif', webp:'image/webp', bmp:'image/bmp' };
+
+function descargarAdjunto(idx) {
+  const { base64, nombre } = adjuntosMap[idx];
+  let dataStr = base64, mime = 'application/octet-stream';
+  if (dataStr.startsWith('data:')) {
+    const m = dataStr.match(/^data:([^;]+);base64,(.+)$/);
+    if (m) { mime = m[1]; dataStr = m[2]; }
+  } else {
+    const ext = nombre.split('.').pop().toLowerCase();
+    mime = MIME_MAP[ext] || mime;
+  }
+  const bytes = atob(dataStr);
+  const arr = new Uint8Array(bytes.length);
+  for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+  const url = URL.createObjectURL(new Blob([arr], { type: mime }));
+  const a = document.createElement('a');
+  a.href = url; a.download = nombre;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 // ── Renderizar historial ──────────────────────────────────────────────────────
+const tipoLabels = {
+  consulta:    'Consulta médica',
+  estudio:     'Estudio médico',
+  practica:    'Práctica médica',
+  diagnostico: 'Diagnóstico',
+  medicacion:  'Medicación',
+  alergia:     'Alergia',
+  cirugia:     'Cirugía',
+  vacuna:      'Vacuna',
+  nota:        'Nota'
+};
+
+function formatFechaES(str) {
+  if (!str) return '—';
+  const d = new Date(str.replace(' ', 'T'));
+  if (isNaN(d.getTime())) return String(str);
+  return d.toLocaleString('es-AR', {
+    day: 'numeric', month: 'long', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+}
+
 function renderHistorial(historial) {
   const container = document.getElementById('historial-container');
   const badge     = document.getElementById('badge-count');
 
+  Object.keys(adjuntosMap).forEach(k => delete adjuntosMap[k]);
   badge.textContent = `${historial.length} registro${historial.length !== 1 ? 's' : ''}`;
 
   if (!historial.length) {
@@ -73,27 +123,50 @@ function renderHistorial(historial) {
     return;
   }
 
-  const tipoLabels = {
-    diagnostico: 'Diagnóstico',
-    medicacion:  'Medicación',
-    alergia:     'Alergia',
-    cirugia:     'Cirugía',
-    vacuna:      'Vacuna',
-    estudio:     'Estudio',
-    nota:        'Nota'
-  };
-
   container.innerHTML = `<div class="historial-lista">
-    ${historial.map(item => `
-      <div class="historial-item">
-        <span class="tipo-badge tipo-${esc(item.tipo)}">${tipoLabels[item.tipo] || esc(item.tipo)}</span>
-        <div class="historial-item-body">
-          <div class="historial-item-titulo">${esc(item.titulo)}</div>
-          ${item.descripcion ? `<div class="historial-item-desc">${esc(item.descripcion)}</div>` : ''}
-          ${item.fecha_registro ? `<div class="historial-item-meta">Fecha: ${esc(item.fecha_registro)}</div>` : ''}
-        </div>
-      </div>
-    `).join('')}
+    ${historial.map((item, idx) => {
+      const label = tipoLabels[item.tipo] || esc(item.tipo);
+      const titulo = item.subtipo ? esc(item.subtipo) : label;
+      const profParts = [
+        item.profesional_nombre,
+        item.profesional_matricula ? 'Mat. ' + item.profesional_matricula : null,
+        item.profesional_institucion
+      ].filter(Boolean).map(p => esc(p));
+
+      let adjuntoHtml = '';
+      if (item.adjunto_base64 && item.adjunto_nombre) {
+        adjuntosMap[idx] = { base64: item.adjunto_base64, nombre: item.adjunto_nombre };
+        const ext = item.adjunto_nombre.split('.').pop().toLowerCase();
+        const isImage = IMG_EXTS.has(ext);
+        const thumbHtml = isImage
+          ? `<img class="adjunto-thumb" src="${
+              item.adjunto_base64.startsWith('data:')
+                ? item.adjunto_base64
+                : `data:image/${ext};base64,${item.adjunto_base64}`
+            }" alt="${esc(item.adjunto_nombre)}">`
+          : '';
+        adjuntoHtml = `
+          <div class="adjunto-area">
+            ${thumbHtml}
+            <button class="btn-adjunto" onclick="descargarAdjunto(${idx})">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              ${esc(item.adjunto_nombre)}
+            </button>
+          </div>`;
+      }
+
+      return `
+        <div class="historial-item historial-item-${esc(item.tipo)}">
+          <div class="historial-item-body">
+            <span class="tipo-badge tipo-${esc(item.tipo)}">${label}</span>
+            <div class="historial-item-titulo">${titulo}</div>
+            ${item.descripcion ? `<div class="historial-item-desc">${esc(item.descripcion)}</div>` : ''}
+            ${profParts.length ? `<div class="historial-item-prof">${profParts.join(' — ')}</div>` : ''}
+            <div class="historial-item-meta">${formatFechaES(item.created_at || item.fecha_registro)}</div>
+            ${adjuntoHtml}
+          </div>
+        </div>`;
+    }).join('')}
   </div>`;
 }
 

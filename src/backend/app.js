@@ -14,7 +14,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PUBLIC_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
-const JWT_SECRET = process.env.JWT_SECRET || 'secret_key';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // ─── Email ────────────────────────────────────────────────────────────────────
 let transporter = null;
@@ -44,7 +44,8 @@ async function sendResetEmail(to, firstName, resetUrl) {
 }
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ limit: '20mb', extended: true }));
 app.use(express.static('public'));
 
 // ─── Middleware JWT ───────────────────────────────────────────────────────────

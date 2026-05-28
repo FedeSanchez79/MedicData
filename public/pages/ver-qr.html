@@ -81,24 +81,24 @@
     </div>
     <div class="skeleton-lista">
       <div class="skeleton-item" style="animation-delay:.2s">
-        <div class="skeleton-badge"></div>
         <div class="skeleton-body">
+          <div class="skeleton-badge"></div>
           <div class="skeleton-line sk-title"></div>
           <div class="skeleton-line sk-desc"></div>
           <div class="skeleton-line sk-meta"></div>
         </div>
       </div>
       <div class="skeleton-item" style="animation-delay:.35s">
-        <div class="skeleton-badge"></div>
         <div class="skeleton-body">
+          <div class="skeleton-badge"></div>
           <div class="skeleton-line sk-title"></div>
           <div class="skeleton-line sk-desc"></div>
           <div class="skeleton-line sk-meta"></div>
         </div>
       </div>
       <div class="skeleton-item" style="animation-delay:.5s">
-        <div class="skeleton-badge"></div>
         <div class="skeleton-body">
+          <div class="skeleton-badge"></div>
           <div class="skeleton-line sk-title"></div>
           <div class="skeleton-line sk-desc"></div>
           <div class="skeleton-line sk-meta"></div>
@@ -184,14 +184,26 @@ function esc(str) {
 }
 
 const tipoLabels = {
+  consulta:    'Consulta médica',
+  estudio:     'Estudio médico',
+  practica:    'Práctica médica',
   diagnostico: 'Diagnóstico',
   medicacion:  'Medicación',
   alergia:     'Alergia',
   cirugia:     'Cirugía',
   vacuna:      'Vacuna',
-  estudio:     'Estudio',
   nota:        'Nota'
 };
+
+function formatFechaES(str) {
+  if (!str) return '—';
+  const d = new Date(str.replace(' ', 'T'));
+  if (isNaN(d.getTime())) return String(str);
+  return d.toLocaleString('es-AR', {
+    day: 'numeric', month: 'long', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+}
 
 function renderHistorial(historial) {
   const container = document.getElementById('historial-container');
@@ -208,16 +220,25 @@ function renderHistorial(historial) {
   }
 
   container.innerHTML = `<div class="historial-lista">
-    ${historial.map(item => `
-      <div class="historial-item">
-        <span class="tipo-badge tipo-${esc(item.tipo)}">${tipoLabels[item.tipo] || esc(item.tipo)}</span>
-        <div class="historial-item-body">
-          <div class="historial-item-titulo">${esc(item.titulo)}</div>
-          ${item.descripcion ? `<div class="historial-item-desc">${esc(item.descripcion)}</div>` : ''}
-          ${item.fecha_registro ? `<div class="historial-item-meta">Fecha: ${esc(item.fecha_registro)}</div>` : ''}
-        </div>
-      </div>
-    `).join('')}
+    ${historial.map(item => {
+      const label = tipoLabels[item.tipo] || esc(item.tipo);
+      const titulo = item.subtipo ? esc(item.subtipo) : label;
+      const profParts = [
+        item.profesional_nombre,
+        item.profesional_matricula ? 'Mat. ' + item.profesional_matricula : null,
+        item.profesional_institucion
+      ].filter(Boolean).map(p => esc(p));
+      return `
+        <div class="historial-item">
+          <div class="historial-item-body">
+            <span class="tipo-badge tipo-${esc(item.tipo)}">${label}</span>
+            <div class="historial-item-titulo">${titulo}</div>
+            ${item.descripcion ? `<div class="historial-item-desc">${esc(item.descripcion)}</div>` : ''}
+            ${profParts.length ? `<div class="historial-item-prof">${profParts.join(' — ')}</div>` : ''}
+            <div class="historial-item-meta">${formatFechaES(item.created_at || item.fecha_registro)}</div>
+          </div>
+        </div>`;
+    }).join('')}
   </div>`;
 }
 

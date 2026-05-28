@@ -163,9 +163,6 @@ textarea {
   border: 1px solid var(--borde);
   border-radius: 12px;
   padding: 1rem 1.25rem;
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
 }
 
 .historial-vacio {
@@ -190,8 +187,8 @@ textarea {
   padding: 3px 10px;
   border-radius: 20px;
   white-space: nowrap;
-  flex-shrink: 0;
-  margin-top: 2px;
+  display: inline-block;
+  margin-bottom: 8px;
 }
 
 .tipo-diagnostico { background: #EEF3FF; color: #1A5CFF; }
@@ -201,8 +198,8 @@ textarea {
 .tipo-vacuna      { background: #F5F3FF; color: #7C3AED; }
 .tipo-estudio     { background: #ECFEFF; color: #0E7490; }
 .tipo-nota        { background: #F9FAFB; color: #6B7280; }
-
-.historial-item-body { flex: 1; }
+.tipo-consulta    { background: #EEF3FF; color: #1A5CFF; }
+.tipo-practica    { background: #F0FDF4; color: #16A34A; }
 
 .historial-item-titulo {
   font-size: 0.9rem;
@@ -214,6 +211,12 @@ textarea {
   font-size: 0.82rem;
   color: var(--gris);
   line-height: 1.5;
+}
+
+.historial-item-prof {
+  font-size: 0.75rem;
+  color: var(--gris-claro);
+  margin-top: 5px;
 }
 
 .historial-item-meta {
@@ -278,11 +281,6 @@ textarea {
   .btn-logout {
     font-size: 0.75rem;
     padding: 5px 10px;
-  }
-
-  .historial-item {
-    flex-direction: column;
-    gap: 6px;
   }
 
   .historial-header {

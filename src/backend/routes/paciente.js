@@ -105,13 +105,14 @@ router.post('/cargar', async (req, res) => {
       `INSERT INTO medical_records
         (patient_id, tipo, titulo, subtipo, descripcion, fecha_registro,
          profesional_nombre, profesional_matricula, profesional_institucion,
-         adjunto_base64, adjunto_nombre)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         adjunto_base64, adjunto_nombre, professional_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         patient_id, tipo, tipo,
         subtipo || null, descripcion || null, fecha || null,
         profesional_nombre || null, profesional_matricula || null, profesional_institucion || null,
         adjunto_base64 || null, adjunto_nombre || null,
+        req.user.id,
       ]
     );
 
