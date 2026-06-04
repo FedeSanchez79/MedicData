@@ -12,8 +12,7 @@ if (!token || role !== 'patient') {
 }
 
 // ── UI inicial ────────────────────────────────────────────────────────────────
-document.getElementById('nombre-display').textContent    = nombre || 'Paciente';
-document.getElementById('titulo-bienvenida').textContent = `Hola, ${nombre?.split(' ')[0] || 'Paciente'}`;
+document.getElementById('nombre-display').textContent = nombre || 'Paciente';
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
 function toast(msg, tipo = 'exito') {
@@ -40,26 +39,11 @@ function esc(str) {
     .replace(/"/g, '&quot;');
 }
 
-// ── Cargar historial ──────────────────────────────────────────────────────────
-async function cargarHistorial() {
-  try {
-    const res = await fetch(`${API_BASE_URL}/historial/paciente/${userId}`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-
-    if (!res.ok) throw new Error();
-    const data = await res.json();
-    renderHistorial(data.historial);
-
-  } catch {
-    document.getElementById('historial-container').innerHTML = '';
-    toast('Error cargando el historial', 'error');
-  }
-}
+// ── Registros ─────────────────────────────────────────────────────────────────
+let todosRegistros = [];
 
 // ── Adjuntos ──────────────────────────────────────────────────────────────────
 const adjuntosMap = {};
-
 const IMG_EXTS = new Set(['png','jpg','jpeg','gif','webp','bmp']);
 const MIME_MAP = { pdf:'application/pdf', png:'image/png', jpg:'image/jpeg', jpeg:'image/jpeg', gif:'image/gif', webp:'image/webp', bmp:'image/bmp' };
 
@@ -84,7 +68,7 @@ function descargarAdjunto(idx) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-// ── Renderizar historial ──────────────────────────────────────────────────────
+// ── Labels de tipo ────────────────────────────────────────────────────────────
 const tipoLabels = {
   consulta:    'Consulta médica',
   estudio:     'Estudio médico',
@@ -107,6 +91,7 @@ function formatFechaES(str) {
   });
 }
 
+// ── Renderizar historial ──────────────────────────────────────────────────────
 function renderHistorial(historial) {
   const container = document.getElementById('historial-container');
   const badge     = document.getElementById('badge-count');
@@ -115,11 +100,18 @@ function renderHistorial(historial) {
   badge.textContent = `${historial.length} registro${historial.length !== 1 ? 's' : ''}`;
 
   if (!historial.length) {
-    container.innerHTML = `
-      <div class="historial-vacio">
-        <p>📋</p>
-        <p>No hay registros médicos todavía.</p>
-      </div>`;
+    if (todosRegistros.length > 0) {
+      container.innerHTML = `
+        <div class="historial-sin-filtros">
+          <p>No se encontraron registros con esos filtros.</p>
+        </div>`;
+    } else {
+      container.innerHTML = `
+        <div class="historial-vacio">
+          <p>📋</p>
+          <p>No hay registros médicos todavía.</p>
+        </div>`;
+    }
     return;
   }
 
@@ -170,6 +162,103 @@ function renderHistorial(historial) {
   </div>`;
 }
 
+// ── Aplicar filtros ───────────────────────────────────────────────────────────
+function aplicarFiltros() {
+  const texto = document.getElementById('filtro-texto').value.trim().toLowerCase();
+  const tipo  = document.getElementById('filtro-tipo').value;
+  const desde = document.getElementById('filtro-desde').value;
+  const hasta = document.getElementById('filtro-hasta').value;
+
+  const filtrados = todosRegistros.filter(item => {
+    if (texto) {
+      const enDesc = (item.descripcion || '').toLowerCase().includes(texto);
+      const enProf = (item.profesional_nombre || '').toLowerCase().includes(texto);
+      const enInst = (item.profesional_institucion || '').toLowerCase().includes(texto);
+      if (!enDesc && !enProf && !enInst) return false;
+    }
+
+    if (tipo && item.tipo !== tipo) return false;
+
+    const fechaItem = (item.created_at || item.fecha_registro || '').substring(0, 10);
+    if (desde && fechaItem && fechaItem < desde) return false;
+    if (hasta && fechaItem && fechaItem > hasta) return false;
+
+    return true;
+  });
+
+  renderHistorial(filtrados);
+}
+
+// ── Listeners de filtros ──────────────────────────────────────────────────────
+document.getElementById('filtro-texto').addEventListener('input', aplicarFiltros);
+document.getElementById('filtro-tipo').addEventListener('change', aplicarFiltros);
+document.getElementById('filtro-desde').addEventListener('change', aplicarFiltros);
+document.getElementById('filtro-hasta').addEventListener('change', aplicarFiltros);
+
+document.getElementById('btn-limpiar-filtros').addEventListener('click', () => {
+  document.getElementById('filtro-texto').value = '';
+  document.getElementById('filtro-tipo').value  = '';
+  document.getElementById('filtro-desde').value = '';
+  document.getElementById('filtro-hasta').value = '';
+  aplicarFiltros();
+});
+
+// ── Cargar historial ──────────────────────────────────────────────────────────
+async function cargarHistorial() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/historial/paciente/${userId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+
+    todosRegistros = (data.historial || []).sort((a, b) => {
+      const da = new Date((a.created_at || a.fecha_registro || '').replace(' ', 'T'));
+      const db = new Date((b.created_at || b.fecha_registro || '').replace(' ', 'T'));
+      return db - da;
+    });
+
+    aplicarFiltros();
+  } catch {
+    document.getElementById('historial-container').innerHTML = '';
+    toast('Error cargando el historial', 'error');
+  }
+}
+
+// ── Tarjeta del paciente ──────────────────────────────────────────────────────
+async function cargarTarjetaPaciente() {
+  const nombreEl    = document.getElementById('paciente-nombre-card');
+  const inicialesEl = document.getElementById('paciente-iniciales');
+  const avatarEl    = document.getElementById('paciente-avatar-el');
+
+  if (nombre) {
+    nombreEl.textContent = nombre;
+    const partes = nombre.trim().split(/\s+/);
+    const ini = (partes[0]?.[0] || '') + (partes.length > 1 ? (partes[partes.length - 1]?.[0] || '') : '');
+    inicialesEl.textContent = ini.toUpperCase() || '—';
+  }
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/perfil/${userId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) return;
+    const perfil = await res.json();
+
+    if (perfil.email) {
+      document.getElementById('paciente-email-card').textContent = perfil.email;
+    }
+    if (perfil.foto) {
+      avatarEl.innerHTML = `<img src="${perfil.foto}" alt="Foto de perfil">`;
+    } else {
+      const ini = `${perfil.firstName?.[0] || ''}${perfil.lastName?.[0] || ''}`.toUpperCase();
+      if (ini) inicialesEl.textContent = ini;
+    }
+  } catch {
+    // No es crítico: la tarjeta ya muestra el nombre del sessionStorage
+  }
+}
+
 // ── QR ────────────────────────────────────────────────────────────────────────
 let qrCountdownInterval = null;
 
@@ -185,7 +274,7 @@ document.getElementById('btn-generar-qr').addEventListener('click', async () => 
     const ctx = canvas.getContext('2d');
     const img = new Image();
     img.onload = () => {
-      canvas.width = img.width;
+      canvas.width  = img.width;
       canvas.height = img.height;
       ctx.drawImage(img, 0, 0);
     };
@@ -220,3 +309,4 @@ document.getElementById('btn-generar-qr').addEventListener('click', async () => 
 
 // ── Iniciar ───────────────────────────────────────────────────────────────────
 cargarHistorial();
+cargarTarjetaPaciente();
