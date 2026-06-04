@@ -13,6 +13,7 @@ if (!token || role !== 'patient') {
 
 // ── UI inicial ────────────────────────────────────────────────────────────────
 document.getElementById('nombre-display').textContent = nombre || 'Paciente';
+document.getElementById('saludo-nombre').textContent  = nombre || 'Paciente';
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
 function toast(msg, tipo = 'exito') {

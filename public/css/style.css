@@ -1160,17 +1160,32 @@ form {
 /* ── PANEL PACIENTE — layout dos columnas ── */
 .panel-paciente {
   display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 3fr);
+  grid-template-columns: minmax(0, 3fr) minmax(0, 7fr);
   gap: 1.5rem;
   align-items: start;
 }
 
-.col-derecha {
+.col-izquierda {
   position: sticky;
   top: 76px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+/* ── SALUDO ────────────────────────────────── */
+.panel-saludo {
+  padding: 0.25rem 0.25rem 0;
+}
+
+.saludo-texto {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.saludo-texto span {
+  color: var(--text-primary);
 }
 
 /* ── TARJETA PACIENTE ──────────────────────── */
@@ -1300,9 +1315,8 @@ form {
   .panel-paciente {
     grid-template-columns: 1fr;
   }
-  .col-derecha {
+  .col-izquierda {
     position: static;
-    order: -1;
   }
 }
 @media (max-width: 640px) {

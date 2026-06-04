@@ -33,8 +33,43 @@
 <main class="main">
   <div class="panel-paciente">
 
-    <!-- Columna izquierda: historial médico con filtros -->
-    <section class="col-izquierda">
+    <!-- Columna izquierda (30%): saludo + perfil + QR -->
+    <aside class="col-izquierda">
+
+      <!-- Saludo del paciente -->
+      <div class="panel-saludo">
+        <p class="saludo-texto">Hola, <span id="saludo-nombre">—</span></p>
+      </div>
+
+      <!-- Tarjeta del paciente -->
+      <div class="paciente-card">
+        <div class="paciente-avatar" id="paciente-avatar-el">
+          <span id="paciente-iniciales">—</span>
+        </div>
+        <div class="paciente-nombre" id="paciente-nombre-card">—</div>
+        <div class="paciente-email-card" id="paciente-email-card">—</div>
+      </div>
+
+      <!-- Sección QR -->
+      <div class="qr-section">
+        <h2>Código QR médico</h2>
+        <p>Generá un código QR temporal para compartir tu historial con un médico. Expira en 15 minutos.</p>
+        <button class="btn-qr" id="btn-generar-qr">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M3 3h7v7H3V3zm2 2v3h3V5H5zm9-2h7v7h-7V3zm2 2v3h3V5h-3zM3 14h7v7H3v-7zm2 2v3h3v-3H5zm9 0h2v2h-2v-2zm2 2h2v2h-2v-2zm2-2h2v2h-2v-2zm-2 2h2v2h-2v-2zm2 2h2v2h-2v-2zm-4 0h2v2h-2v-2zm2-4h2v2h-2v-2z"/>
+          </svg>
+          Generar QR
+        </button>
+        <div id="qr-display" style="display:none; margin-top:1.2rem; text-align:center;">
+          <canvas id="qr-canvas" style="display:block; margin:0 auto; border-radius:8px;"></canvas>
+          <p class="qr-countdown">Expira en: <span id="qr-timer" style="font-weight:600;">15:00</span></p>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Columna derecha (70%): historial médico con filtros -->
+    <section class="col-derecha">
 
       <div class="historial-header">
         <h2>Historial médico</h2>
@@ -94,36 +129,6 @@
       </div>
 
     </section>
-
-    <!-- Columna derecha: tarjeta del paciente + QR -->
-    <aside class="col-derecha">
-
-      <!-- Tarjeta del paciente -->
-      <div class="paciente-card">
-        <div class="paciente-avatar" id="paciente-avatar-el">
-          <span id="paciente-iniciales">—</span>
-        </div>
-        <div class="paciente-nombre" id="paciente-nombre-card">—</div>
-        <div class="paciente-email-card" id="paciente-email-card">—</div>
-      </div>
-
-      <!-- Sección QR -->
-      <div class="qr-section">
-        <h2>Código QR médico</h2>
-        <p>Generá un código QR temporal para compartir tu historial con un médico. Expira en 15 minutos.</p>
-        <button class="btn-qr" id="btn-generar-qr">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M3 3h7v7H3V3zm2 2v3h3V5H5zm9-2h7v7h-7V3zm2 2v3h3V5h-3zM3 14h7v7H3v-7zm2 2v3h3v-3H5zm9 0h2v2h-2v-2zm2 2h2v2h-2v-2zm2-2h2v2h-2v-2zm-2 2h2v2h-2v-2zm2 2h2v2h-2v-2zm-4 0h2v2h-2v-2zm2-4h2v2h-2v-2z"/>
-          </svg>
-          Generar QR
-        </button>
-        <div id="qr-display" style="display:none; margin-top:1.2rem; text-align:center;">
-          <canvas id="qr-canvas" style="display:block; margin:0 auto; border-radius:8px;"></canvas>
-          <p class="qr-countdown">Expira en: <span id="qr-timer" style="font-weight:600;">15:00</span></p>
-        </div>
-      </div>
-
-    </aside>
 
   </div>
 </main>
