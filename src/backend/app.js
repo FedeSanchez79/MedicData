@@ -267,6 +267,59 @@ app.get('/api/qr/generar', authenticateToken, async (req, res) => {
   }
 });
 
+// Acceder al historial de un paciente via token QR (uso exclusivo de profesionales)
+app.get('/qr/acceder/:qrToken', authenticateToken, async (req, res) => {
+  if (req.user.role !== 'professional') {
+    return res.status(403).json({ message: 'Solo profesionales pueden acceder via QR' });
+  }
+
+  const { qrToken } = req.params;
+
+  try {
+    const db = await openDb();
+
+    const paciente = await db.get(
+      `SELECT id, firstName, lastName, email, phone, dni, fecha_nacimiento,
+              cobertura_medica, numero_afiliado
+       FROM users
+       WHERE qr_token = ? AND role = 'patient' AND qr_token_expires > ?`,
+      [qrToken, new Date().toISOString()]
+    );
+
+    if (!paciente) {
+      return res.status(410).json({ message: 'QR expirado o inválido' });
+    }
+
+    await db.run(
+      'UPDATE users SET qr_token = NULL, qr_token_expires = NULL WHERE id = ?',
+      [paciente.id]
+    );
+
+    const historial = await db.all(
+      'SELECT * FROM medical_records WHERE patient_id = ? ORDER BY created_at DESC',
+      [paciente.id]
+    );
+
+    res.json({
+      paciente: {
+        id:               paciente.id,
+        first_name:       paciente.firstName,
+        last_name:        paciente.lastName,
+        email:            paciente.email,
+        phone:            paciente.phone,
+        dni:              paciente.dni,
+        fecha_nacimiento: paciente.fecha_nacimiento,
+        cobertura_medica: paciente.cobertura_medica,
+        numero_afiliado:  paciente.numero_afiliado,
+      },
+      historial,
+    });
+  } catch (err) {
+    console.error('Error en GET /qr/acceder/:qrToken:', err);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 // Historial del paciente
 app.use('/historial/paciente', authenticateToken, pacienteRouter);
 
