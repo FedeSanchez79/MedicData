@@ -55,10 +55,11 @@ body {
 
 /* ── NAVBAR ────────────────────────────────── */
 .navbar {
-  background: var(--bg-surface);
+  background: #0f3460;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+  box-shadow: 0 2px 20px rgba(0, 212, 255, 0.15);
   padding: 0 2rem;
   height: 60px;
   display: flex;
@@ -194,8 +195,16 @@ textarea {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid;
+  border-image: linear-gradient(to right, rgba(0, 212, 255, 0.5), transparent) 1;
 }
-.historial-header h2 { font-size: 1rem; font-weight: 500; }
+.historial-header h2 {
+  font-size: 1rem;
+  font-weight: 500;
+  padding-left: 12px;
+  border-left: 3px solid var(--accent-cyan);
+}
 
 .badge-count {
   font-size: 0.75rem;
@@ -214,12 +223,12 @@ textarea {
 }
 
 .historial-item {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--border);
+  background: #1e2a4a;
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-left: 3px solid rgba(0, 212, 255, 0.25);
   border-radius: 12px;
   padding: 1rem 1.25rem;
-  box-shadow: 0 4px 24px rgba(0, 212, 255, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 212, 255, 0.12);
   transition: all 0.3s ease;
   animation: fadeInUp 0.4s ease both;
 }
@@ -238,8 +247,8 @@ textarea {
   padding: 3rem 1rem;
   color: var(--text-secondary);
   font-size: 0.88rem;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
+  background: #1e2a4a;
+  border: 1px solid rgba(0, 212, 255, 0.25);
   border-radius: 16px;
 }
 .historial-vacio p:first-child { font-size: 2rem; margin-bottom: 0.5rem; }
@@ -450,11 +459,11 @@ body.login-layout {
   width: 100%;
   max-width: 900px;
   min-height: 560px;
-  background: var(--bg-surface);
+  background: #1e2a4a;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 8px 48px rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--border);
+  box-shadow: 0 8px 48px rgba(0, 0, 0, 0.4), 0 4px 24px rgba(0, 212, 255, 0.12);
+  border: 1px solid rgba(0, 212, 255, 0.25);
   animation: fadeInUp 0.5s ease both;
 }
 
@@ -770,15 +779,15 @@ form {
 
 /* ── CARDS ─────────────────────────────────── */
 .card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
+  background: #1e2a4a;
+  border: 1px solid rgba(0, 212, 255, 0.25);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 4px 24px rgba(0, 212, 255, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 212, 255, 0.12);
   transition: all 0.3s ease;
   animation: fadeInUp 0.4s ease both;
 }
-.card:hover { box-shadow: 0 8px 32px rgba(0, 212, 255, 0.12); }
+.card:hover { box-shadow: 0 8px 32px rgba(0, 212, 255, 0.18); }
 
 .card-title {
   font-size: 0.75rem;
@@ -793,13 +802,25 @@ form {
 
 /* ── QR SECTION ────────────────────────────── */
 .qr-section {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
+  background: #1e2a4a;
+  border: 1px solid rgba(0, 212, 255, 0.25);
   border-radius: 16px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   animation: qr-glow 4s ease-in-out infinite, fadeInUp 0.4s ease both;
-  box-shadow: 0 4px 24px rgba(0, 212, 255, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 212, 255, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+.qr-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-violet));
+  border-radius: 16px 16px 0 0;
 }
 .qr-section h2 {
   font-size: 1rem;
