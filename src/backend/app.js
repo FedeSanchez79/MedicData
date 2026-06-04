@@ -258,7 +258,7 @@ app.get('/api/qr/generar', authenticateToken, async (req, res) => {
       'UPDATE users SET qr_token = ?, qr_token_expires = ? WHERE id = ?',
       [qrToken, expiresAt, userId]
     );
-    const qrUrl = `https://localhost:3001/pages/ver-paciente.html?token=${qrToken}`;
+    const qrUrl = `${PUBLIC_URL}/pages/ver-paciente.html?token=${qrToken}`;
     const qrImage = await QRCode.toDataURL(qrUrl, { width: 220, margin: 2 });
     res.json({ token: qrToken, expires_at: expiresAt, qr_image: qrImage });
   } catch (err) {
