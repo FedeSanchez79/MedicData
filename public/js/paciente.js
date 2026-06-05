@@ -1,6 +1,21 @@
 const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
   ? 'http://localhost:3000' : '';
 
+// ── Token desde redirect OAuth ────────────────────────────────────────────────
+const _urlParams = new URLSearchParams(window.location.search);
+const _urlToken  = _urlParams.get('token');
+if (_urlToken) {
+  try {
+    const _payload = JSON.parse(atob(_urlToken.split('.')[1]));
+    sessionStorage.setItem('token',    _urlToken);
+    sessionStorage.setItem('userId',   String(_payload.id));
+    sessionStorage.setItem('role',     _payload.role);
+    sessionStorage.setItem('username', _payload.username);
+    sessionStorage.setItem('nombre',   `${_payload.firstName} ${_payload.lastName}`);
+    window.history.replaceState({}, '', '/pages/paciente.html');
+  } catch { /* token inválido, el bloque siguiente redirige a login */ }
+}
+
 // ── Verificar sesión ──────────────────────────────────────────────────────────
 const token  = sessionStorage.getItem('token');
 const role   = sessionStorage.getItem('role');

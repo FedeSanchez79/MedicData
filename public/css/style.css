@@ -1825,3 +1825,46 @@ form { display: flex; flex-direction: column; gap: 14px; }
   .historial-item { padding: 0.75rem 1rem; }
   .historial-vacio { padding: 2rem 1rem; }
 }
+
+/* ── Divisor "o" ─────────────────────────────────────────────────────────────*/
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 2px 0;
+}
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--borde);
+}
+.divider span {
+  font-size: 0.78rem;
+  color: var(--gris-claro);
+}
+
+/* ── Botón Google ─────────────────────────────────────────────────────────────*/
+.btn-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0.72rem;
+  background: var(--blanco);
+  border: 1.5px solid var(--borde);
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--texto);
+  font-family: 'DM Sans', sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-google:hover {
+  background: var(--fondo);
+  border-color: var(--gris-claro);
+}
+.btn-google svg { flex-shrink: 0; }

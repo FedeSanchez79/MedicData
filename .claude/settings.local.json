@@ -27,7 +27,11 @@
       "PowerShell(Get-NetTCPConnection *)",
       "PowerShell(Start-Process node -ArgumentList \"src/backend/app.js\" -WorkingDirectory \"C:\\\\Users\\\\admin\\\\onedrive\\\\desktop\\\\medicdata\" -NoNewWindow -PassThru | Select-Object Id; Start-Sleep -Seconds 4; try { $r = Invoke-WebRequest -Uri \"http://localhost:3000/\" -TimeoutSec 5 -UseBasicParsing; \"HTTP $\\($r.StatusCode\\) — servidor responde OK en :3000\" } catch { \"Error: $_\" })",
       "Bash(Get-ChildItem *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\admin\\\\onedrive\\\\desktop\\\\medicdata\" -Directory | Where-Object {$_.Name -ne 'node_modules'} | Select-Object -ExpandProperty Name)",
+      "Bash(node --input-type=module)"
     ]
   }
 }

@@ -6,6 +6,9 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import QRCode from 'qrcode';
 import nodemailer from 'nodemailer';
+import session from 'express-session';
+import passport from 'passport';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { openDb, initDb } from './database.js';
 import pacienteRouter from './routes/paciente.js';
 
@@ -47,6 +50,74 @@ app.use(cors());
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 app.use(express.static('public'));
+
+// ─── Sesión y OAuth ───────────────────────────────────────────────────────────
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'dev-fallback-secret',
+  resave: false,
+  saveUninitialized: false,
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((user, done) => done(null, user));
+
+passport.use(new GoogleStrategy(
+  {
+    clientID:     process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL:  `${PUBLIC_URL}/auth/google/callback`,
+  },
+  async (accessToken, refreshToken, profile, done) => {
+    try {
+      const db    = await openDb();
+      const email = profile.emails?.[0]?.value;
+      if (!email) return done(new Error('No email en perfil de Google'));
+
+      let user = await db.get('SELECT * FROM users WHERE email = ?', email);
+
+      if (!user) {
+        const firstName = profile.name?.givenName || '';
+        const lastName  = profile.name?.familyName || '';
+        const base      = email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 20);
+        let username    = base;
+        let n = 1;
+        while (await db.get('SELECT id FROM users WHERE username = ?', username)) {
+          username = `${base}${n++}`;
+        }
+        const randomPass = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
+        await db.run(
+          `INSERT INTO users (firstName, lastName, email, username, password, role) VALUES (?, ?, ?, ?, ?, ?)`,
+          [firstName, lastName, email, username, randomPass, 'patient']
+        );
+        user = await db.get('SELECT * FROM users WHERE email = ?', email);
+      }
+
+      return done(null, user);
+    } catch (err) {
+      return done(err);
+    }
+  }
+));
+
+// ─── OAuth Google ─────────────────────────────────────────────────────────────
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['email', 'profile'] })
+);
+
+app.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/?error=google' }),
+  (req, res) => {
+    const user  = req.user;
+    const token = jwt.sign(
+      { id: user.id, role: user.role, username: user.username, firstName: user.firstName, lastName: user.lastName },
+      JWT_SECRET,
+      { expiresIn: '8h' }
+    );
+    res.redirect(`/pages/paciente.html?token=${encodeURIComponent(token)}`);
+  }
+);
 
 // ─── Middleware JWT ───────────────────────────────────────────────────────────
 // Se exporta para que los routers lo puedan usar
