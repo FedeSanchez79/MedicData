@@ -62,6 +62,15 @@ export function authenticateToken(req, res, next) {
   });
 }
 
+// ─── Middleware Admin ─────────────────────────────────────────────────────────
+function requireAdminToken(req, res, next) {
+  const token = req.headers['x-admin-token'];
+  if (!token || token !== process.env.ADMIN_API_SECRET) {
+    return res.status(401).json({ error: 'No autorizado' });
+  }
+  next();
+}
+
 // ─── Rutas públicas ───────────────────────────────────────────────────────────
 
 // Registro de usuario
@@ -322,6 +331,47 @@ app.get('/qr/acceder/:qrToken', authenticateToken, async (req, res) => {
 
 // Historial del paciente
 app.use('/historial/paciente', authenticateToken, pacienteRouter);
+
+// ─── Rutas Admin ─────────────────────────────────────────────────────────────
+
+app.get('/api/admin/patients', requireAdminToken, async (req, res) => {
+  try {
+    const db = await openDb();
+    const patients = await db.all('SELECT id, first_name, last_name, phone, email, username, role, created_at FROM users ORDER BY created_at DESC');
+    res.json(patients);
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/admin/patients/:id', requireAdminToken, async (req, res) => {
+  try {
+    const db = await openDb();
+    const patient = await db.get('SELECT id, first_name, last_name, phone, email, username, role, created_at FROM users WHERE id=?', req.params.id);
+    if (!patient) return res.status(404).json({ error: 'Paciente no encontrado' });
+    res.json(patient);
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.put('/api/admin/patients/:id', requireAdminToken, async (req, res) => {
+  try {
+    const { first_name, last_name, email, phone, username } = req.body;
+    const db = await openDb();
+    const result = await db.run(
+      'UPDATE users SET first_name=?, last_name=?, email=?, phone=?, username=? WHERE id=?',
+      [first_name, last_name, email, phone ?? null, username, req.params.id]
+    );
+    if (result.changes === 0) return res.status(404).json({ error: 'Paciente no encontrado' });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete('/api/admin/patients/:id', requireAdminToken, async (req, res) => {
+  try {
+    const db = await openDb();
+    const result = await db.run('DELETE FROM users WHERE id=?', req.params.id);
+    if (result.changes === 0) return res.status(404).json({ error: 'Paciente no encontrado' });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
 
 // ─── Inicializar DB y arrancar servidor ───────────────────────────────────────
 initDb()
