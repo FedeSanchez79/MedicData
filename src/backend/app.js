@@ -17,6 +17,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PUBLIC_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
+const PROFESSIONALS_URL = process.env.PROFESSIONALS_URL || PUBLIC_URL;
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // ─── Email ────────────────────────────────────────────────────────────────────
@@ -338,7 +339,7 @@ app.get('/api/qr/generar', authenticateToken, async (req, res) => {
       'UPDATE users SET qr_token = ?, qr_token_expires = ? WHERE id = ?',
       [qrToken, expiresAt, userId]
     );
-    const qrUrl = `${PUBLIC_URL}/pages/ver-paciente.html?token=${qrToken}`;
+    const qrUrl = `${PROFESSIONALS_URL}/pages/ver-paciente.html?token=${qrToken}`;
     const qrImage = await QRCode.toDataURL(qrUrl, { width: 220, margin: 2 });
     res.json({ token: qrToken, expires_at: expiresAt, qr_image: qrImage });
   } catch (err) {
