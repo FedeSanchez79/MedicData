@@ -71,6 +71,7 @@ export async function initDb() {
     'ALTER TABLE medical_records ADD COLUMN profesional_institucion TEXT',
     'ALTER TABLE medical_records ADD COLUMN adjunto_base64 TEXT',
     'ALTER TABLE medical_records ADD COLUMN adjunto_nombre TEXT',
+    'ALTER TABLE medical_records ADD COLUMN professional_id INTEGER',
   ]) {
     await db.run(col).catch(() => {});
   }
