@@ -11,6 +11,7 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { openDb, initDb } from './database.js';
 import pacienteRouter from './routes/paciente.js';
+import passport from './config/passport.js';
 
 dotenv.config();
 
@@ -51,6 +52,22 @@ app.use(cors());
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 app.use(express.static('public'));
+app.use(passport.initialize());
+
+// ─── JWT ──────────────────────────────────────────────────────────────────────
+function generarToken(user) {
+  return jwt.sign(
+    {
+      id: user.id,
+      role: user.role,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName
+    },
+    JWT_SECRET,
+    { expiresIn: '8h' }
+  );
+}
 
 // ─── Sesión y OAuth ───────────────────────────────────────────────────────────
 app.use(session({
@@ -199,17 +216,7 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Contraseña incorrecta' });
     }
 
-    const token = jwt.sign(
-      {
-        id: user.id,
-        role: user.role,
-        username: user.username,
-        firstName: user.firstName,
-        lastName: user.lastName
-      },
-      JWT_SECRET,
-      { expiresIn: '8h' }
-    );
+    const token = generarToken(user);
 
     res.json({
       token,
@@ -325,6 +332,21 @@ app.post('/reset-password', async (req, res) => {
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
+
+// Login con Google
+app.get('/auth/google', passport.authenticate('google', {
+  scope: ['profile', 'email'],
+  session: false,
+  prompt: 'select_account'
+}));
+
+app.get('/auth/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: `${PUBLIC_URL}/?error=google_auth_failed` }),
+  (req, res) => {
+    const token = generarToken(req.user);
+    res.redirect(`${PUBLIC_URL}/?token=${token}`);
+  }
+);
 
 // ─── Rutas protegidas ─────────────────────────────────────────────────────────
 

@@ -152,6 +152,33 @@ registerForm?.addEventListener('submit', async (e) => {
   }
 });
 
+// ─── Login con Google (callback) ──────────────────────────────────────────────
+(() => {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  const error = params.get('error');
+
+  if (error) {
+    history.replaceState(null, '', '/');
+    window.addEventListener('DOMContentLoaded', () => {
+      showMessage('Error al iniciar sesión con Google. Intentá de nuevo.');
+    });
+    return;
+  }
+
+  if (!token) return;
+
+  const payload = JSON.parse(atob(token.split('.')[1]));
+
+  sessionStorage.setItem('token',    token);
+  sessionStorage.setItem('userId',   payload.id);
+  sessionStorage.setItem('role',     payload.role);
+  sessionStorage.setItem('username', payload.username);
+  sessionStorage.setItem('nombre',   `${payload.firstName} ${payload.lastName}`);
+
+  window.location.replace('/pages/paciente.html');
+})();
+
 // ─── Login ────────────────────────────────────────────────────────────────────
 loginForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
