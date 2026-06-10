@@ -31,7 +31,22 @@
       "Bash(Select-Object -ExpandProperty FullName)",
       "Bash(Sort-Object)",
       "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\admin\\\\onedrive\\\\desktop\\\\medicdata\" -Directory | Where-Object {$_.Name -ne 'node_modules'} | Select-Object -ExpandProperty Name)",
-      "Bash(node --input-type=module)"
+      "Bash(node --input-type=module)",
+      "Bash(powershell *)",
+      "Bash(git status *)",
+      "Bash(git rebase *)",
+      "Bash(findstr -i rebase)",
+      "Bash(cat .git/rebase-merge/onto)",
+      "Bash(cat .git/rebase-merge/head-name)",
+      "Bash(cat .git/rebase-merge/git-rebase-todo)",
+      "Bash(cat .git/rebase-merge/done)",
+      "Bash(git rev-list *)",
+      "Bash(git stash *)",
+      "Read(//c/Users/admin/OneDrive/Desktop/MedicProfessionals/**)",
+      "Bash(find . -path ./node_modules -prune -o -iname \"*profesional*\" -print)",
+      "Bash(find . -path ./node_modules -prune -o -iname \"*qr*\" -print)",
+      "Bash(find public/css -iname \"*profesional*\")",
+      "Bash(grep -n \"qr-section-card\" -r public/css)"
     ]
   }
 }
