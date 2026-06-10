@@ -119,7 +119,10 @@ passport.use(new GoogleStrategy(
 
 // ─── OAuth Google ─────────────────────────────────────────────────────────────
 app.get('/auth/google',
-  passport.authenticate('google', { scope: ['email', 'profile'] })
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    prompt: 'select_account'
+  })
 );
 
 app.get('/auth/google/callback',
