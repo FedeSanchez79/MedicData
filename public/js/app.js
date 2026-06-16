@@ -205,6 +205,11 @@ loginForm?.addEventListener('submit', async (e) => {
       return;
     }
 
+    if (data.needs_consent) {
+      window.location.href = `/consent.html?token=${encodeURIComponent(data.token)}`;
+      return;
+    }
+
     const payload = JSON.parse(atob(data.token.split('.')[1]));
 
     sessionStorage.setItem('token',    data.token);

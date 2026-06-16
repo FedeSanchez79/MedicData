@@ -134,6 +134,9 @@ app.get('/auth/google/callback',
       JWT_SECRET,
       { expiresIn: '8h' }
     );
+    if (!user.terms_accepted) {
+      return res.redirect(`/consent.html?token=${encodeURIComponent(token)}`);
+    }
     res.redirect(`/pages/paciente.html?token=${encodeURIComponent(token)}`);
   }
 );
@@ -218,6 +221,18 @@ app.post('/login', async (req, res) => {
     }
 
     const token = generarToken(user);
+
+    if (!user.terms_accepted) {
+      return res.json({
+        token,
+        needs_consent: true,
+        id: user.id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role
+      });
+    }
 
     res.json({
       token,
@@ -334,20 +349,30 @@ app.post('/reset-password', async (req, res) => {
   }
 });
 
-// Login con Google
-app.get('/auth/google', passport.authenticate('google', {
-  scope: ['profile', 'email'],
-  session: false,
-  prompt: 'select_account'
-}));
+// Aceptar términos y condiciones
+app.post('/auth/accept-terms', async (req, res) => {
+  const { token } = req.body;
+  if (!token) return res.redirect('/?error=token_requerido');
 
-app.get('/auth/google/callback',
-  passport.authenticate('google', { session: false, failureRedirect: `${PUBLIC_URL}/?error=google_auth_failed` }),
-  (req, res) => {
-    const token = generarToken(req.user);
-    res.redirect(`${PUBLIC_URL}/?token=${token}`);
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    const db = await openDb();
+    await db.run(
+      'UPDATE users SET terms_accepted = 1, terms_accepted_at = ? WHERE id = ?',
+      [new Date().toISOString(), payload.id]
+    );
+    res.redirect(`/pages/paciente.html?token=${encodeURIComponent(token)}`);
+  } catch {
+    res.redirect('/?error=token_invalido');
   }
-);
+});
+
+// Cerrar sesión
+app.get('/auth/logout', (req, res) => {
+  if (req.logout) req.logout(() => {});
+  if (req.session) req.session.destroy(() => {});
+  res.redirect('/');
+});
 
 // ─── Rutas protegidas ─────────────────────────────────────────────────────────
 

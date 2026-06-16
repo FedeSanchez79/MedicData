@@ -45,6 +45,8 @@ export async function initDb() {
     'ALTER TABLE users ADD COLUMN reset_token TEXT',
     'ALTER TABLE users ADD COLUMN reset_token_expires DATETIME',
     'ALTER TABLE users ADD COLUMN google_id TEXT',
+    'ALTER TABLE users ADD COLUMN terms_accepted BOOLEAN DEFAULT 0',
+    'ALTER TABLE users ADD COLUMN terms_accepted_at DATETIME',
   ]) {
     await db.run(col).catch(() => {});
   }

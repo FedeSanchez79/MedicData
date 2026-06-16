@@ -46,7 +46,11 @@
       "Bash(find . -path ./node_modules -prune -o -iname \"*profesional*\" -print)",
       "Bash(find . -path ./node_modules -prune -o -iname \"*qr*\" -print)",
       "Bash(find public/css -iname \"*profesional*\")",
-      "Bash(grep -n \"qr-section-card\" -r public/css)"
+      "Bash(grep -n \"qr-section-card\" -r public/css)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\admin\\\\OneDrive\\\\Desktop\\\\medicdata\" -Force | Select-Object Name, @{Name=\"Type\";Expression={if\\($_.PSIsContainer\\){\"Directory\"}else{\"File\"}}} | Format-Table -AutoSize)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\admin\\\\OneDrive\\\\Desktop\\\\medicdata\\\\src\" -Recurse -Force | Select-Object FullName | ForEach-Object {$_.FullName.Substring\\('C:\\\\Users\\\\admin\\\\OneDrive\\\\Desktop\\\\medicdata\\\\'.Length\\)})",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\admin\\\\OneDrive\\\\Desktop\\\\medicdata\\\\public\" -Recurse -Force | Select-Object FullName | ForEach-Object {$_.FullName.Substring\\('C:\\\\Users\\\\admin\\\\OneDrive\\\\Desktop\\\\medicdata\\\\'.Length\\)})",
+      "Bash(Select-Object FullName)"
     ]
   }
 }
