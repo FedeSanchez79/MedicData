@@ -52,7 +52,8 @@
       "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\admin\\\\OneDrive\\\\Desktop\\\\medicdata\\\\public\" -Recurse -Force | Select-Object FullName | ForEach-Object {$_.FullName.Substring\\('C:\\\\Users\\\\admin\\\\OneDrive\\\\Desktop\\\\medicdata\\\\'.Length\\)})",
       "Bash(Select-Object FullName)",
       "PowerShell(\\(Get-Item \"C:\\\\Users\\\\admin\\\\OneDrive\\\\Desktop\\\\medicdata\\\\public\\\\assets\\\\images\\\\logo.png\"\\).Length / 1KB)",
-      "PowerShell(git *)"
+      "PowerShell(git *)",
+      "PowerShell(sqlite3 *)"
     ]
   }
 }
