@@ -53,7 +53,8 @@
       "Bash(Select-Object FullName)",
       "PowerShell(\\(Get-Item \"C:\\\\Users\\\\admin\\\\OneDrive\\\\Desktop\\\\medicdata\\\\public\\\\assets\\\\images\\\\logo.png\"\\).Length / 1KB)",
       "PowerShell(git *)",
-      "PowerShell(sqlite3 *)"
+      "PowerShell(sqlite3 *)",
+      "Bash(git commit *)"
     ]
   }
 }
