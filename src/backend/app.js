@@ -464,7 +464,7 @@ app.use('/historial/paciente', authenticateToken, pacienteRouter);
 app.get('/api/admin/patients', requireAdminToken, async (req, res) => {
   try {
     const db = await openDb();
-    const patients = await db.all('SELECT id, first_name, last_name, phone, email, username, role, created_at, banned_at, banned_by, ban_reason FROM users ORDER BY created_at DESC');
+    const patients = await db.all('SELECT id, firstName, lastName, phone, email, username, role, created_at, banned_at, banned_by, ban_reason FROM users ORDER BY created_at DESC');
     res.json(patients);
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
@@ -472,7 +472,7 @@ app.get('/api/admin/patients', requireAdminToken, async (req, res) => {
 app.get('/api/admin/patients/:id', requireAdminToken, async (req, res) => {
   try {
     const db = await openDb();
-    const patient = await db.get('SELECT id, first_name, last_name, phone, email, username, role, created_at, banned_at, banned_by, ban_reason FROM users WHERE id=?', req.params.id);
+    const patient = await db.get('SELECT id, firstName, lastName, phone, email, username, role, created_at, banned_at, banned_by, ban_reason FROM users WHERE id=?', req.params.id);
     if (!patient) return res.status(404).json({ error: 'Paciente no encontrado' });
     res.json(patient);
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -480,11 +480,11 @@ app.get('/api/admin/patients/:id', requireAdminToken, async (req, res) => {
 
 app.put('/api/admin/patients/:id', requireAdminToken, async (req, res) => {
   try {
-    const { first_name, last_name, email, phone, username } = req.body;
+    const { firstName, lastName, email, phone, username } = req.body;
     const db = await openDb();
     const result = await db.run(
-      'UPDATE users SET first_name=?, last_name=?, email=?, phone=?, username=? WHERE id=?',
-      [first_name, last_name, email, phone ?? null, username, req.params.id]
+      'UPDATE users SET firstName=?, lastName=?, email=?, phone=?, username=? WHERE id=?',
+      [firstName, lastName, email, phone ?? null, username, req.params.id]
     );
     if (result.changes === 0) return res.status(404).json({ error: 'Paciente no encontrado' });
     res.json({ ok: true });
