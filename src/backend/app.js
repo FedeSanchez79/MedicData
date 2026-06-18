@@ -129,6 +129,9 @@ app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/?error=google' }),
   (req, res) => {
     const user  = req.user;
+    if (user.banned_at) {
+      return res.redirect('/?error=cuenta_suspendida');
+    }
     const token = jwt.sign(
       { id: user.id, role: user.role, username: user.username, firstName: user.firstName, lastName: user.lastName },
       JWT_SECRET,
@@ -218,6 +221,10 @@ app.post('/login', async (req, res) => {
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
       return res.status(401).json({ message: 'Contraseña incorrecta' });
+    }
+
+    if (user.banned_at) {
+      return res.status(403).json({ message: 'Tu cuenta ha sido suspendida. Contactá al administrador.' });
     }
 
     const token = generarToken(user);
@@ -457,7 +464,7 @@ app.use('/historial/paciente', authenticateToken, pacienteRouter);
 app.get('/api/admin/patients', requireAdminToken, async (req, res) => {
   try {
     const db = await openDb();
-    const patients = await db.all('SELECT id, first_name, last_name, phone, email, username, role, created_at FROM users ORDER BY created_at DESC');
+    const patients = await db.all('SELECT id, first_name, last_name, phone, email, username, role, created_at, banned_at, banned_by, ban_reason FROM users ORDER BY created_at DESC');
     res.json(patients);
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
@@ -465,7 +472,7 @@ app.get('/api/admin/patients', requireAdminToken, async (req, res) => {
 app.get('/api/admin/patients/:id', requireAdminToken, async (req, res) => {
   try {
     const db = await openDb();
-    const patient = await db.get('SELECT id, first_name, last_name, phone, email, username, role, created_at FROM users WHERE id=?', req.params.id);
+    const patient = await db.get('SELECT id, first_name, last_name, phone, email, username, role, created_at, banned_at, banned_by, ban_reason FROM users WHERE id=?', req.params.id);
     if (!patient) return res.status(404).json({ error: 'Paciente no encontrado' });
     res.json(patient);
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -478,6 +485,32 @@ app.put('/api/admin/patients/:id', requireAdminToken, async (req, res) => {
     const result = await db.run(
       'UPDATE users SET first_name=?, last_name=?, email=?, phone=?, username=? WHERE id=?',
       [first_name, last_name, email, phone ?? null, username, req.params.id]
+    );
+    if (result.changes === 0) return res.status(404).json({ error: 'Paciente no encontrado' });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.put('/api/admin/patients/:id/ban', requireAdminToken, async (req, res) => {
+  try {
+    const { admin_id, reason } = req.body;
+    if (!admin_id) return res.status(400).json({ error: 'admin_id requerido' });
+    const db = await openDb();
+    const result = await db.run(
+      'UPDATE users SET banned_at = ?, banned_by = ?, ban_reason = ? WHERE id = ?',
+      [new Date().toISOString(), admin_id, reason || null, req.params.id]
+    );
+    if (result.changes === 0) return res.status(404).json({ error: 'Paciente no encontrado' });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.put('/api/admin/patients/:id/unban', requireAdminToken, async (req, res) => {
+  try {
+    const db = await openDb();
+    const result = await db.run(
+      'UPDATE users SET banned_at = NULL, banned_by = NULL, ban_reason = NULL WHERE id = ?',
+      [req.params.id]
     );
     if (result.changes === 0) return res.status(404).json({ error: 'Paciente no encontrado' });
     res.json({ ok: true });

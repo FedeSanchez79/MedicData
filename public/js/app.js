@@ -161,7 +161,11 @@ registerForm?.addEventListener('submit', async (e) => {
   if (error) {
     history.replaceState(null, '', '/');
     window.addEventListener('DOMContentLoaded', () => {
-      showMessage('Error al iniciar sesión con Google. Intentá de nuevo.');
+      if (error === 'cuenta_suspendida') {
+        showMessage('Tu cuenta ha sido suspendida. Contactá al administrador.');
+      } else {
+        showMessage('Error al iniciar sesión con Google. Intentá de nuevo.');
+      }
     });
     return;
   }
