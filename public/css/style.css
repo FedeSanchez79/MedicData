@@ -1845,6 +1845,25 @@ form { display: flex; flex-direction: column; gap: 14px; }
   color: var(--gris-claro);
 }
 
+/* ── Separador OAuth ──────────────────────────────────────────────────────────*/
+.separador-oauth {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--gris-claro);
+  font-size: 0.78rem;
+}
+.separador-oauth::before, .separador-oauth::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--borde);
+}
+.separador-oauth span {
+  flex-shrink: 0;
+  line-height: 1;
+}
+
 /* ── Botón Google ─────────────────────────────────────────────────────────────*/
 .btn-google {
   display: flex;
