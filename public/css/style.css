@@ -1593,12 +1593,10 @@ body.login-layout {
 .wrapper {
   display: flex;
   width: 100%;
-  max-width: 900px;
+  max-width: 940px;
   min-height: min(580px, 100svh - 2rem);
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 8px 60px rgba(0, 0, 0, 0.5);
-  border: 1px solid var(--border);
+  gap: 20px;
+  overflow: visible;
   animation: fadeInUp 0.5s ease both;
 }
 
@@ -1612,6 +1610,8 @@ body.login-layout {
   justify-content: space-between;
   position: relative;
   overflow: hidden;
+  border-radius: 20px;
+  box-shadow: 0 8px 60px rgba(0, 0, 0, 0.5);
 }
 .panel-izq::before {
   content: "";
@@ -1656,6 +1656,9 @@ body.login-layout {
   flex-direction: column;
   justify-content: center;
   background: var(--bg-surface);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 60px rgba(0, 0, 0, 0.5);
 }
 .panel-der.scroll { overflow-y: auto; }
 
@@ -1776,10 +1779,10 @@ form { display: flex; flex-direction: column; gap: 14px; }
   .historial-item { flex-direction: column; gap: 6px; }
   .historial-archivo-img,
   .historial-archivo-video { max-height: 220px; }
-  .wrapper { flex-direction: column; border-radius: 16px; }
-  .panel-izq { width: 100%; padding: 1.75rem 1.5rem; min-height: auto; }
+  .wrapper { flex-direction: column; gap: 0; }
+  .panel-izq { width: 100%; padding: 1.75rem 1.5rem; min-height: auto; border-radius: 16px; }
   .panel-izq-copy, .features { display: none; }
-  .panel-der { padding: 2rem 1.5rem; }
+  .panel-der { padding: 2rem 1.5rem; border-radius: 16px; }
   .fila-2 { grid-template-columns: 1fr; gap: 0; }
   .filtros-historial { flex-direction: column; }
   .filtros-fila { flex-direction: column; }
@@ -1809,9 +1812,9 @@ form { display: flex; flex-direction: column; gap: 14px; }
   .dato-valor { text-align: left; }
   .qr-wrapper img { max-width: 160px; }
   body.login-layout { padding: 0; align-items: flex-start; }
-  .wrapper { border-radius: 0; min-height: 100svh; box-shadow: none; }
-  .panel-izq { padding: 1.25rem 1rem; }
-  .panel-der { padding: 1.75rem 1.25rem; }
+  .wrapper { min-height: 100svh; }
+  .panel-izq { padding: 1.25rem 1rem; border-radius: 0; box-shadow: none; }
+  .panel-der { padding: 1.75rem 1.25rem; border-radius: 0; box-shadow: none; }
   .form-title { font-size: 1.35rem; }
   .form-sub   { margin-bottom: 1.25rem; }
 }
