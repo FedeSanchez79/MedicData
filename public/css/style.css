@@ -1850,14 +1850,14 @@ form { display: flex; flex-direction: column; gap: 14px; }
   display: flex;
   align-items: center;
   gap: 10px;
-  color: var(--gris-claro);
+  color: rgba(255,255,255,0.35);
   font-size: 0.78rem;
 }
 .separador-oauth::before, .separador-oauth::after {
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--borde);
+  background: var(--border);
 }
 .separador-oauth span {
   flex-shrink: 0;
