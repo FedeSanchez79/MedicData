@@ -43,7 +43,7 @@ router.get('/:id', async (req, res) => {
     const db = await openDb();
 
     const paciente = await db.get(
-      `SELECT id, firstName, lastName, email, phone, foto, dni, fecha_nacimiento, cobertura_medica, numero_afiliado FROM users WHERE id = ? AND role = 'patient'`,
+      `SELECT id, firstName AS "firstName", lastName AS "lastName", email, phone, foto, dni, fecha_nacimiento, cobertura_medica, numero_afiliado FROM users WHERE id = ? AND role = 'patient'`,
       req.params.id
     );
 
@@ -94,7 +94,7 @@ router.post('/cargar', async (req, res) => {
     const db = await openDb();
 
     const patient = await db.get(
-      `SELECT id, firstName, lastName, email FROM users WHERE id = ? AND role = 'patient'`,
+      `SELECT id, firstName AS "firstName", lastName AS "lastName", email FROM users WHERE id = ? AND role = 'patient'`,
       patient_id
     );
     if (!patient) {
