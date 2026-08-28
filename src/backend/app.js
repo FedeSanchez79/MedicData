@@ -1,4 +1,6 @@
 import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
@@ -6,7 +8,6 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import QRCode from 'qrcode';
 import nodemailer from 'nodemailer';
-import session from 'express-session';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { openDb, initDb } from './database.js';
@@ -50,7 +51,9 @@ async function sendResetEmail(to, firstName, resetUrl) {
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
-app.use(express.static('public'));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use(express.static(path.join(__dirname, '../../public')));
 
 // ─── JWT ──────────────────────────────────────────────────────────────────────
 function generarToken(user) {
@@ -68,16 +71,7 @@ function generarToken(user) {
 }
 
 // ─── Sesión y OAuth ───────────────────────────────────────────────────────────
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'dev-fallback-secret',
-  resave: false,
-  saveUninitialized: false,
-}));
 app.use(passport.initialize());
-app.use(passport.session());
-
-passport.serializeUser((user, done) => done(null, user));
-passport.deserializeUser((user, done) => done(null, user));
 
 passport.use(new GoogleStrategy(
   {
@@ -121,12 +115,13 @@ passport.use(new GoogleStrategy(
 app.get('/auth/google',
   passport.authenticate('google', {
     scope: ['profile', 'email'],
-    prompt: 'select_account'
+    prompt: 'select_account',
+    session: false,
   })
 );
 
 app.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/?error=google' }),
+  passport.authenticate('google', { failureRedirect: '/?error=google', session: false }),
   (req, res) => {
     const user  = req.user;
     if (user.banned_at) {
@@ -376,8 +371,7 @@ app.post('/auth/accept-terms', async (req, res) => {
 
 // Cerrar sesión
 app.get('/auth/logout', (req, res) => {
-  if (req.logout) req.logout(() => {});
-  if (req.session) req.session.destroy(() => {});
+  // La sesión ahora es stateless (JWT en el cliente); no hay nada que destruir server-side.
   res.redirect('/');
 });
 
@@ -527,13 +521,22 @@ app.delete('/api/admin/patients/:id', requireAdminToken, async (req, res) => {
 });
 
 // ─── Inicializar DB y arrancar servidor ───────────────────────────────────────
-initDb()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Servidor corriendo en http://localhost:${PORT}`);
-    });
-  })
-  .catch(err => {
-    console.error('Error inicializando la base de datos:', err);
-    process.exit(1);
-  });
+// En Vercel el archivo api/index.js importa `app` y lo expone como función
+// serverless; no hay que levantar un servidor HTTP persistente ahí.
+const dbReady = initDb().catch(err => {
+  console.error('Error inicializando la base de datos:', err);
+  throw err;
+});
+
+if (!process.env.VERCEL) {
+  dbReady
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`Servidor corriendo en http://localhost:${PORT}`);
+      });
+    })
+    .catch(() => process.exit(1));
+}
+
+export { dbReady };
+export default app;
