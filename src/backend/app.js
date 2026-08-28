@@ -73,13 +73,14 @@ function generarToken(user) {
 // ─── Sesión y OAuth ───────────────────────────────────────────────────────────
 app.use(passport.initialize());
 
-passport.use(new GoogleStrategy(
-  {
-    clientID:     process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL:  `${PUBLIC_URL}/auth/google/callback`,
-  },
-  async (accessToken, refreshToken, profile, done) => {
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  passport.use(new GoogleStrategy(
+    {
+      clientID:     process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL:  `${PUBLIC_URL}/auth/google/callback`,
+    },
+    async (accessToken, refreshToken, profile, done) => {
     try {
       const db    = await openDb();
       const email = profile.emails?.[0]?.value;
@@ -108,21 +109,28 @@ passport.use(new GoogleStrategy(
     } catch (err) {
       return done(err);
     }
-  }
-));
+    }
+  ));
+} else {
+  console.warn('[OAuth] GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET no configurados: login con Google deshabilitado.');
+}
 
 // ─── OAuth Google ─────────────────────────────────────────────────────────────
-app.get('/auth/google',
-  passport.authenticate('google', {
+const googleEnabled = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+
+app.get('/auth/google', (req, res, next) => {
+  if (!googleEnabled) return res.status(503).send('Login con Google no disponible');
+  return passport.authenticate('google', {
     scope: ['profile', 'email'],
     prompt: 'select_account',
     session: false,
-  })
-);
+  })(req, res, next);
+});
 
-app.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/?error=google', session: false }),
-  (req, res) => {
+app.get('/auth/google/callback', (req, res, next) => {
+  if (!googleEnabled) return res.status(503).send('Login con Google no disponible');
+  return passport.authenticate('google', { failureRedirect: '/?error=google', session: false })(req, res, next);
+}, (req, res) => {
     const user  = req.user;
     if (user.banned_at) {
       return res.redirect('/?error=cuenta_suspendida');
