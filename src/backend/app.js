@@ -86,7 +86,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
       const email = profile.emails?.[0]?.value;
       if (!email) return done(new Error('No email en perfil de Google'));
 
-      let user = await db.get('SELECT * FROM users WHERE email = ?', email);
+      let user = await db.get('SELECT *, firstName AS "firstName", lastName AS "lastName" FROM users WHERE email = ?', email);
 
       if (!user) {
         const firstName = profile.name?.givenName || '';
@@ -102,7 +102,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
           `INSERT INTO users (firstName, lastName, email, username, password, role) VALUES (?, ?, ?, ?, ?, ?)`,
           [firstName, lastName, email, username, randomPass, 'patient']
         );
-        user = await db.get('SELECT * FROM users WHERE email = ?', email);
+        user = await db.get('SELECT *, firstName AS "firstName", lastName AS "lastName" FROM users WHERE email = ?', email);
       }
 
       return done(null, user);
@@ -215,7 +215,7 @@ app.post('/login', async (req, res) => {
 
   try {
     const db = await openDb();
-    const user = await db.get('SELECT * FROM users WHERE username = ?', username);
+    const user = await db.get('SELECT *, firstName AS "firstName", lastName AS "lastName" FROM users WHERE username = ?', username);
 
     if (!user) {
       return res.status(400).json({ message: 'Usuario no encontrado' });
@@ -268,7 +268,7 @@ app.get('/perfil/:id', authenticateToken, async (req, res) => {
   try {
     const db = await openDb();
     const paciente = await db.get(
-      `SELECT id, firstName, lastName, email, phone, foto, dni, fecha_nacimiento, cobertura_medica, numero_afiliado FROM users WHERE id = ? AND role = 'patient'`,
+      `SELECT id, firstName AS "firstName", lastName AS "lastName", email, phone, foto, dni, fecha_nacimiento, cobertura_medica, numero_afiliado FROM users WHERE id = ? AND role = 'patient'`,
       req.params.id
     );
     if (!paciente) return res.status(404).json({ message: 'Paciente no encontrado' });
@@ -312,7 +312,7 @@ app.post('/forgot-password', async (req, res) => {
 
   try {
     const db = await openDb();
-    const user = await db.get('SELECT id, firstName, email FROM users WHERE email = ?', email);
+    const user = await db.get('SELECT id, firstName AS "firstName", email FROM users WHERE email = ?', email);
 
     if (user) {
       const resetToken = crypto.randomBytes(32).toString('hex');
@@ -418,7 +418,7 @@ app.get('/qr/acceder/:qrToken', authenticateToken, async (req, res) => {
     const db = await openDb();
 
     const paciente = await db.get(
-      `SELECT id, firstName, lastName, email, phone, dni, fecha_nacimiento,
+      `SELECT id, firstName AS "firstName", lastName AS "lastName", email, phone, dni, fecha_nacimiento,
               cobertura_medica, numero_afiliado
        FROM users
        WHERE qr_token = ? AND role = 'patient' AND qr_token_expires > ?`,
@@ -467,7 +467,7 @@ app.use('/historial/paciente', authenticateToken, pacienteRouter);
 app.get('/api/admin/patients', requireAdminToken, async (req, res) => {
   try {
     const db = await openDb();
-    const patients = await db.all('SELECT id, firstName, lastName, phone, email, username, role, created_at, banned_at, banned_by, ban_reason FROM users ORDER BY created_at DESC');
+    const patients = await db.all('SELECT id, firstName AS "firstName", lastName AS "lastName", phone, email, username, role, created_at, banned_at, banned_by, ban_reason FROM users ORDER BY created_at DESC');
     res.json(patients);
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
@@ -475,7 +475,7 @@ app.get('/api/admin/patients', requireAdminToken, async (req, res) => {
 app.get('/api/admin/patients/:id', requireAdminToken, async (req, res) => {
   try {
     const db = await openDb();
-    const patient = await db.get('SELECT id, firstName, lastName, phone, email, username, role, created_at, banned_at, banned_by, ban_reason FROM users WHERE id=?', req.params.id);
+    const patient = await db.get('SELECT id, firstName AS "firstName", lastName AS "lastName", phone, email, username, role, created_at, banned_at, banned_by, ban_reason FROM users WHERE id=?', req.params.id);
     if (!patient) return res.status(404).json({ error: 'Paciente no encontrado' });
     res.json(patient);
   } catch(e) { res.status(500).json({ error: e.message }); }
