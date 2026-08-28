@@ -368,11 +368,12 @@ app.post('/auth/accept-terms', async (req, res) => {
     const payload = jwt.verify(token, JWT_SECRET);
     const db = await openDb();
     await db.run(
-      'UPDATE users SET terms_accepted = 1, terms_accepted_at = ? WHERE id = ?',
+      'UPDATE users SET terms_accepted = true, terms_accepted_at = ? WHERE id = ?',
       [new Date().toISOString(), payload.id]
     );
     res.redirect(`/pages/paciente.html?token=${encodeURIComponent(token)}`);
-  } catch {
+  } catch (err) {
+    console.error('Error en /auth/accept-terms:', err);
     res.redirect('/?error=token_invalido');
   }
 });
