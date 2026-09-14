@@ -48,7 +48,26 @@ async function sendResetEmail(to, firstName, resetUrl) {
   });
 }
 
-app.use(cors());
+const allowedOrigins = [
+  process.env.PUBLIC_URL,
+  process.env.PROFESSIONALS_URL,
+  process.env.MEDICADMIN_URL,
+  'https://medic-data-chi.vercel.app',
+  'https://medic-professionals.vercel.app',
+  'https://medic-admin-six.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:3001',
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Sin origin = llamada server-to-server o Postman/curl, se permite
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error('Origen no permitido por CORS'));
+  },
+}));
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 const __filename = fileURLToPath(import.meta.url);
